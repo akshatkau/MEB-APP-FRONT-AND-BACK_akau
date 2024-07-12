@@ -10,21 +10,16 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { FontAwesome, AntDesign } from "@expo/vector-icons";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
 
   const handleSignUp = () => {
-    navigation.navigate("Login"); // Replace 'SignUp' with the actual screen name
+    navigation.navigate("Main"); // Navigate to the 'Main' stack screen named 'Home'
   };
 
-  const handleFacebookLogin = () => {
-    // Logic for Facebook login
-  };
-
-  const handleGoogleLogin = () => {
-    // Logic for Google login
+  const handleLogin = () => {
+    navigation.navigate("Log"); // Navigate to the 'Login' screen
   };
 
   return (
@@ -34,48 +29,51 @@ const LoginScreen = () => {
     >
       <View style={styles.overlay}>
         <SafeAreaView style={styles.container}>
+          {/* Top Row Container */}
           <View style={styles.topRow}>
             <Image source={require("../assets/logo.png")} style={styles.logo} />
             <Text style={styles.titleText}>MyEasyPharma</Text>
           </View>
-          <Text style={styles.signUpText}>Log In</Text>
+          {/* Sign Up Text */}
+          <Text style={styles.signUpText}>SignUp</Text>
+          {/* Email Label */}
           <Text style={styles.labelText}>Email</Text>
+          {/* Email Input */}
           <TextInput style={styles.input} placeholder="Enter your email" />
+          {/* Username Label */}
+          <Text style={styles.labelText}>Username</Text>
+          {/* Username Input */}
+          <TextInput style={styles.input} placeholder="Enter your username" />
+          {/* Password Label */}
           <Text style={styles.labelText}>Password</Text>
+          {/* Password Input */}
           <TextInput
             style={styles.input}
             placeholder="Enter your password"
             secureTextEntry={true}
           />
+          {/* Forgotten Password text */}
           <Text style={styles.forgotPassword}>Forgotten Password?</Text>
-          <TouchableOpacity style={styles.loginButton} onPress={handleSignUp}>
-            <Text style={styles.loginButtonText}>Log In</Text>
-          </TouchableOpacity>
-          <View style={styles.dividerContainer}>
-            <View style={styles.divider} />
-            <Text style={styles.orText}>OR</Text>
-            <View style={styles.divider} />
-          </View>
-          <TouchableOpacity
-            style={[styles.loginButton, styles.facebookButton]}
-            onPress={handleFacebookLogin}
-          >
-            <FontAwesome name="facebook" size={20} color="white" />
-            <Text style={styles.loginButtonText}> Log in with Facebook</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.loginButton, styles.googleButton]}
-            onPress={handleGoogleLogin}
-          >
-            <AntDesign name="google" size={20} color="white" />
-            <Text style={styles.loginButtonText}> Log in with Google</Text>
-          </TouchableOpacity>
-          <Text style={styles.loginText}>
-            Don't have an account?{" "}
-            <Text style={styles.underline} onPress={handleSignUp}>
-              Sign Up
-            </Text>
+          {/* Agreement text */}
+          <Text style={styles.agreementText}>
+            By creating an account you are agreeing to our{" "}
+            <Text style={styles.underline}>Terms of Service</Text> and{" "}
+            <Text style={styles.underline}>Privacy Policy</Text>.
           </Text>
+          {/* Signup button */}
+          <TouchableOpacity
+            style={styles.signupButton}
+            onPress={handleSignUp} // Call handleSignUp function on press
+          >
+            <Text style={styles.signupButtonText}>Sign Up</Text>
+          </TouchableOpacity>
+          {/* Already have an account text */}
+          <TouchableOpacity onPress={handleLogin}>
+            <Text style={styles.loginText}>
+              Already have an account?{" "}
+              <Text style={styles.underline}>Login</Text>
+            </Text>
+          </TouchableOpacity>
         </SafeAreaView>
       </View>
     </ImageBackground>
@@ -88,17 +86,17 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    backgroundColor: "rgba(255, 255, 255, 0.7)", // Light overlay with 70% opacity
   },
   container: {
     flex: 1,
-    paddingTop: 50,
+    paddingTop: 50, // Adjust this value to give some top padding
   },
   topRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 20, // Adjust this value for horizontal spacing
   },
   logo: {
     width: 55,
@@ -111,15 +109,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginRight: 30,
-    flex: 1,
+    flex: 1, // Center align the text
   },
   signUpText: {
     color: "#254336",
     fontSize: 26,
     marginTop: 20,
     marginLeft: 20,
-    fontFamily: "serif",
-    fontWeight: "bold",
+    fontFamily: "serif", // Use system font here
+    fontWeight: "bold", // Increase the thickness
   },
   labelText: {
     color: "#254336",
@@ -145,7 +143,18 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     textDecorationLine: "underline",
   },
-  loginButton: {
+  agreementText: {
+    color: "#254336",
+    fontSize: 14,
+    marginTop: 20,
+    marginLeft: 20,
+    marginRight: 20,
+    textAlign: "center",
+  },
+  underline: {
+    textDecorationLine: "underline",
+  },
+  signupButton: {
     backgroundColor: "#254336",
     paddingVertical: 12,
     paddingHorizontal: 40,
@@ -153,46 +162,18 @@ const styles = StyleSheet.create({
     marginRight: 20,
     borderRadius: 25,
     marginTop: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
   },
-  loginButtonText: {
+  signupButtonText: {
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
-    marginLeft: 10,
+    textAlign: "center",
   },
   loginText: {
     color: "#254336",
     fontSize: 16,
     marginTop: 20,
     textAlign: "center",
-  },
-  underline: {
-    textDecorationLine: "underline",
-  },
-  dividerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 20,
-    marginHorizontal: 20,
-  },
-  divider: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#254336",
-  },
-  orText: {
-    marginHorizontal: 10,
-    fontSize: 16,
-    color: "#254336",
-  },
-  facebookButton: {
-    backgroundColor: "#3b5998",
-  },
-  googleButton: {
-    backgroundColor: "#DB4437",
   },
 });
 

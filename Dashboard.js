@@ -1,190 +1,174 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Image, StyleSheet, ScrollView, ImageBackground, TouchableOpacity } from 'react-native';
-import { DebugInstructions } from 'react-native/Libraries/NewAppScreen';
-const logo = require("./assets/logo.jpg");
-const notification = require("./assets/notification.png");
-const settings = require("./assets/settings.png");
-const homepage = require("./assets/homepage.png");
-const graph = require("./assets/graph.jpg");
-const steps = require("./assets/steps.jpg");
-const calories = require("./assets/calories.jpg");
-const water = require("./assets/water.jpg");
-const reminders = require("./assets/reminders.jpg");
-const reports = require("./assets/reports.jpg");
-const name = require("./assets/name.jpg");
-
+import React from "react";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  ImageBackground,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 const Dashboard = () => {
+  const navigation = useNavigation();
 
-    return(
-        <View style={styles.container}>
-          
-          <ImageBackground 
-       source={require("./assets/background.jpeg")}
-       style={styles.backimg}>
-
-       
-          <View>
-          <Image 
-          source={logo}
-          style={styles.logotop}/>
-          <Text style={styles.titlet}>Dashboard</Text>
-          <Image 
-          source={notification}
-          style={styles.noti}/>
-          <Image 
-          source={settings}
-          style={styles.settings}/>
-
-          </View>
-
-          <Image 
-          source={name}
-          style={styles.name}/>
-
-          <Image 
-          source={graph}
-          style={styles.graph}/>
-
-        <View style={styles.parameters}>
-          <Image 
-          source={steps}
-          style={styles.steps}/>
-
-          <Image 
-          source={calories}
-          style={styles.calories}/>
-
-          <Image 
-          source={water}
-          style={styles.water}/>
-
-         </View>
-
-          <View style={styles.alignboxes}>
-          <Image 
-          source={reminders}
-          style={styles.reminders}/>
-
-         <Image 
-          source={reports}
-          style={styles.reports}/>
-          </View>
-
-<TouchableOpacity style={styles.bottombutton}>
-          <Text style={styles.bottomtext}>Add New Data</Text>
-         </TouchableOpacity>
-
-         </ImageBackground>
-
+  return (
+    <ImageBackground
+      source={require("../assets/backgroundimg.png")}
+      style={styles.background}
+    >
+      <View style={styles.container}>
+        {/* Top Row */}
+        <View style={styles.topRow}>
+          <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+            <Image source={require("../assets/logo.png")} style={styles.logo} />
+          </TouchableOpacity>
+          <Text style={styles.titleText}>Dashboard</Text>
+          <TouchableOpacity style={styles.iconContainer}>
+            <Image
+              source={require("../assets/notification.png")}
+              style={styles.notificationIcon}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconContainer}>
+            <Image
+              source={require("../assets/settings.png")}
+              style={styles.settingsIcon}
+            />
+          </TouchableOpacity>
         </View>
-    )
-}
+
+        {/* Graph Image */}
+        <Image
+          source={require("../assets/graph.jpg")}
+          style={styles.graphImage}
+        />
+
+        {/* Parameters Row */}
+        <View style={styles.parametersRow}>
+          <Image
+            source={require("../assets/steps.jpg")}
+            style={styles.parameterImage}
+          />
+          <Image
+            source={require("../assets/calories.jpg")}
+            style={styles.parameterImage}
+          />
+          <Image
+            source={require("../assets/water.jpg")}
+            style={styles.parameterImage}
+          />
+        </View>
+
+        {/* Bottom Row */}
+        <View style={styles.bottomRow}>
+          <Image
+            source={require("../assets/reminders.jpg")}
+            style={styles.remindersImage}
+          />
+          <Image
+            source={require("../assets/reports.jpg")}
+            style={styles.reportsImage}
+          />
+        </View>
+
+        {/* Add New Data Button */}
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => navigation.navigate("Profile")}
+        >
+          <Text style={styles.buttonText}>Add New Data</Text>
+        </TouchableOpacity>
+      </View>
+    </ImageBackground>
+  );
+};
 
 const styles = StyleSheet.create({
-    logotop: {
-        marginLeft: 0,
-        marginTop: 40,
-        width: 45,
-        height: 45
-    },
-    titlet: {
-        marginLeft: 100,
-        marginTop: -45,
-        fontSize: 19,
-        color: '#254336',
-        fontWeight: 'bold'
-    },
-    noti: {
-        marginLeft: 240,
-        width: 50,
-        height: 50,
-        marginTop: -35
-    },
-    settings: {
-        width: 35,
-        height: 35,
-        marginLeft: 320,
-        marginTop: -45
-    },
-    graph: {
-        marginTop: 180,
-        alignSelf: 'center'
-    },
-    reminders:{
-        marginTop: 25,
-        marginLeft: -10,
-        height: 150,
-        width: 180
-    },
-    alignboxes: {
-        flexDirection: 'row'
-    },
-    reports:{
-        marginLeft: 20,
-        marginTop: 30,
-        height: 150,
-        width: 160,
-        
-    },
-    buttondata:{
-        marginTop: 40,
-        alignSelf: 'center'
-    },
-    name:{
-        width: 380,
-        height: 100,
-        marginTop: 30,
-        marginBottom: -100,
-        alignSelf: 'center'
-    },
-    graph: {
-        width: 360,
-        height: 200,
-        marginTop: 140,
-        alignSelf: 'center'
-    },
-    parameters:{
-        flexDirection: 'row'
-    },
-
-    steps: {
-        height: 62,
-        width: 115,
-        marginTop: 30,
-        marginLeft: -20
-    },
-    calories:{
-        height: 62,
-        width: 115,
-        marginLeft: 15,
-        marginTop: 30
-    },
-    water: {
-         height: 60,
-         width: 110,
-         marginTop: 30,
-         marginLeft: 18
-    },
-    bottombutton: {
-        marginTop: 20,
-        borderColor: 'black',
-        borderWidth: 2,
-        width: 200,
-        height: 50,
-        alignSelf: 'center',
-        borderRadius: 30
-     },
-     bottomtext: {
-         fontSize: 16,
-         textAlign: 'center',
-         marginTop: 8
-     },
-     backimg: {
-            resizeMode: 'contain',
-            padding: 40
-        },
-    
-})
+  background: {
+    flex: 1,
+    resizeMode: "cover",
+  },
+  container: {
+    flex: 1,
+    paddingTop: 50,
+    paddingHorizontal: 20,
+  },
+  topRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  logo: {
+    width: 55,
+    height: 55,
+    resizeMode: "contain",
+  },
+  titleText: {
+    color: "#254336",
+    fontSize: 25,
+    fontWeight: "bold",
+    textAlign: "center",
+    flex: 1,
+  },
+  iconContainer: {
+    padding: 10,
+  },
+  notificationIcon: {
+    width: 50,
+    height: 50,
+    resizeMode: "contain",
+  },
+  settingsIcon: {
+    width: 35,
+    height: 35,
+    resizeMode: "contain",
+  },
+  graphImage: {
+    width: "100%",
+    height: 200,
+    resizeMode: "contain",
+    marginTop: 20,
+  },
+  parametersRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 20,
+  },
+  parameterImage: {
+    width: 120,
+    height: 100,
+    resizeMode: "contain",
+  },
+  bottomRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginTop: 20,
+  },
+  remindersImage: {
+    width: 180,
+    height: 150,
+    resizeMode: "contain",
+  },
+  reportsImage: {
+    width: 160,
+    height: 150,
+    resizeMode: "contain",
+  },
+  addButton: {
+    alignSelf: "center",
+    marginTop: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: "#28A745",
+    borderRadius: 30,
+  },
+  buttonText: {
+    fontSize: 16,
+    color: "#fff",
+    textAlign: "center",
+  },
+});
 
 export default Dashboard;

@@ -1,25 +1,20 @@
-import React from 'react';
-import { SafeAreaView, StyleSheet } from 'react-native';
-import { Provider } from 'react-redux';
-import store from './redux/store.js';
-import HealthDetails from './HealthDetails.js';
-import Dashboard from './Dashboard.js';
+import { StyleSheet, Text, View } from "react-native";
+import Navigation from "./StackNavigator";
+import { Provider } from "react-redux";
 
-
-const App = () => {
+export default function App() {
   return (
-    <Provider store={store}>
-    <SafeAreaView style={styles.container}>
-      <Dashboard/>
-    </SafeAreaView>
-    </Provider>
+    <>
+      <Navigation />
+    </>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
-
-export default App;
