@@ -18,6 +18,9 @@ const LoginScreen = () => {
   const handleSignUp = () => {
     navigation.navigate("Login"); // Replace 'SignUp' with the actual screen name
   };
+  const handleLogin = () => {
+    navigation.navigate("Dashboard"); // Replace 'SignUp' with the actual screen name
+  };
 
   const handleFacebookLogin = () => {
     // Logic for Facebook login
@@ -48,7 +51,7 @@ const LoginScreen = () => {
             secureTextEntry={true}
           />
           <Text style={styles.forgotPassword}>Forgotten Password?</Text>
-          <TouchableOpacity style={styles.loginButton} onPress={handleSignUp}>
+          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
             <Text style={styles.loginButtonText}>Log In</Text>
           </TouchableOpacity>
           <View style={styles.dividerContainer}>
