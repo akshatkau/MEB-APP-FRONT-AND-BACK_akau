@@ -15,7 +15,7 @@ const HomePage = () => {
   const navigation = useNavigation();
 
   const handleGetStarted = () => {
-    navigation.navigate("Login"); // Replace 'SignUp' with the actual screen name
+    navigation.navigate("Main"); // Replace 'SignUp' with the actual screen name
   };
 
   return (
