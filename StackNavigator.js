@@ -53,8 +53,8 @@ function BottomTabs() {
         }}
       />
       <Tab.Screen
-        name="Dashboard"
-        component={Dashboard}
+        name="Log"
+        component={LogIn}
         options={{
           tabBarLabel: "Profile",
           headerShown: false,
