@@ -15,7 +15,7 @@ const LoginScreen = () => {
   const navigation = useNavigation();
 
   const handleSignUp = () => {
-    navigation.navigate("Main"); // Navigate to the 'Main' stack screen named 'Home'
+    navigation.navigate("Dashboard"); // Navigate to the 'Main' stack screen named 'Home'
   };
 
   const handleLogin = () => {
