@@ -13,7 +13,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { MaterialIcons } from "@expo/vector-icons";
-import RNPickerSelect from "react-native-picker-select";
+import DropDownPicker from "react-native-dropdown-picker";
 
 const Profile = () => {
   const navigation = useNavigation();
@@ -25,9 +25,31 @@ const Profile = () => {
   const [phone, setPhone] = useState("");
   const [age, setAge] = useState(0);
   const [bloodGroup, setBloodGroup] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState([
+    { label: "A+", value: "A+" },
+    { label: "A-", value: "A-" },
+    { label: "B+", value: "B+" },
+    { label: "B-", value: "B-" },
+    { label: "AB+", value: "AB+" },
+    { label: "AB-", value: "AB-" },
+    { label: "O+", value: "O+" },
+    { label: "O-", value: "O-" },
+  ]);
 
   const incrementValue = (value, setter) => setter(value + 1);
   const decrementValue = (value, setter) => setter(value > 0 ? value - 1 : 0);
+
+  const handleEditProfilePic = () => {
+    // Handle edit profile picture action here
+    console.log("Edit profile picture");
+  };
+
+  const handleSubmit = () => {
+    // Handle the submit action here
+    navigation.navigate("Dashboard");
+    console.log("Profile submitted");
+  };
 
   return (
     <ImageBackground
@@ -38,35 +60,35 @@ const Profile = () => {
         <SafeAreaView style={styles.container}>
           {/* Top Row Container */}
           <View style={styles.topRow}>
-            <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+            <TouchableOpacity onPress={() => navigation.navigate("Dashboard")}>
+              <MaterialIcons name="arrow-back" size={30} color="#254336" />
+            </TouchableOpacity>
+            <Text style={styles.titleText}>User Profile</Text>
+            <View style={styles.logoContainer}>
               <Image
                 source={require("../assets/logo.png")}
                 style={styles.logo}
               />
-            </TouchableOpacity>
-            <Text style={styles.titleText}>User Profile</Text>
-            <View style={styles.iconContainer}>
-              <Ionicons
-                name="notifications-sharp"
-                size={24}
-                color="black"
-                style={styles.notificationIcon}
-              />
-              <MaterialIcons
-                name="settings"
-                size={24}
-                color="black"
-                style={styles.settingsIcon}
-              />
             </View>
           </View>
           {/* Profile Content */}
-          <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            showsVerticalScrollIndicator={false}
+          >
             <View style={styles.contentContainer}>
-              <Image
-                source={require("../assets/edit.jpg")}
-                style={styles.profilePic}
-              />
+              <TouchableOpacity onPress={handleEditProfilePic}>
+                <Image
+                  source={require("../assets/edit.jpg")}
+                  style={styles.profilePic}
+                />
+                <Ionicons
+                  name="create-outline"
+                  size={24}
+                  color="#8BBE78"
+                  style={styles.editIcon}
+                />
+              </TouchableOpacity>
               <Text style={styles.profilePicText}>Hello, User Name!</Text>
 
               <Text style={styles.label}>Email:</Text>
@@ -75,6 +97,7 @@ const Profile = () => {
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
+                placeholder="Enter your email"
               />
 
               <Text style={styles.label}>Username:</Text>
@@ -82,6 +105,7 @@ const Profile = () => {
                 style={styles.input}
                 value={username}
                 onChangeText={setUsername}
+                placeholder="Enter your username"
               />
 
               <Text style={styles.label}>Password:</Text>
@@ -90,14 +114,17 @@ const Profile = () => {
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
+                placeholder="Enter your password"
               />
+
               <Text style={styles.label}>Phone Number:</Text>
               <View style={styles.phoneContainer}>
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, { flex: 1 }]}
                   value={phone}
                   onChangeText={setPhone}
                   keyboardType="numeric"
+                  placeholder="Enter your phone number"
                 />
                 <TouchableOpacity style={styles.sendOtpButton}>
                   <Text style={styles.sendOtpText}>Send OTP</Text>
@@ -107,7 +134,7 @@ const Profile = () => {
               <Text style={styles.label}>Height (cm):</Text>
               <View style={styles.incrementContainer}>
                 <TouchableOpacity
-                  style={styles.incrementButton}
+                  style={[styles.incrementButton, styles.incrementButtonLeft]}
                   onPress={() => decrementValue(height, setHeight)}
                 >
                   <Text style={styles.incrementButtonText}>-</Text>
@@ -119,7 +146,7 @@ const Profile = () => {
                   keyboardType="numeric"
                 />
                 <TouchableOpacity
-                  style={styles.incrementButton}
+                  style={[styles.incrementButton, styles.incrementButtonRight]}
                   onPress={() => incrementValue(height, setHeight)}
                 >
                   <Text style={styles.incrementButtonText}>+</Text>
@@ -129,7 +156,7 @@ const Profile = () => {
               <Text style={styles.label}>Weight (kg):</Text>
               <View style={styles.incrementContainer}>
                 <TouchableOpacity
-                  style={styles.incrementButton}
+                  style={[styles.incrementButton, styles.incrementButtonLeft]}
                   onPress={() => decrementValue(weight, setWeight)}
                 >
                   <Text style={styles.incrementButtonText}>-</Text>
@@ -141,7 +168,7 @@ const Profile = () => {
                   keyboardType="numeric"
                 />
                 <TouchableOpacity
-                  style={styles.incrementButton}
+                  style={[styles.incrementButton, styles.incrementButtonRight]}
                   onPress={() => incrementValue(weight, setWeight)}
                 >
                   <Text style={styles.incrementButtonText}>+</Text>
@@ -151,7 +178,7 @@ const Profile = () => {
               <Text style={styles.label}>Age:</Text>
               <View style={styles.incrementContainer}>
                 <TouchableOpacity
-                  style={styles.incrementButton}
+                  style={[styles.incrementButton, styles.incrementButtonLeft]}
                   onPress={() => decrementValue(age, setAge)}
                 >
                   <Text style={styles.incrementButtonText}>-</Text>
@@ -163,31 +190,32 @@ const Profile = () => {
                   keyboardType="numeric"
                 />
                 <TouchableOpacity
-                  style={styles.incrementButton}
+                  style={[styles.incrementButton, styles.incrementButtonRight]}
                   onPress={() => incrementValue(age, setAge)}
                 >
                   <Text style={styles.incrementButtonText}>+</Text>
                 </TouchableOpacity>
               </View>
+              <View style={styles.bloodGroup}>
+                <Text style={styles.label}>Blood Group:</Text>
+                <DropDownPicker
+                  open={open}
+                  value={bloodGroup}
+                  items={items}
+                  setOpen={setOpen}
+                  setValue={setBloodGroup}
+                  setItems={setItems}
+                  style={pickerSelectStyles.dropdown}
+                  containerStyle={styles.dropDownContainer}
+                />
+              </View>
 
-              <Text style={styles.label}>Blood Group:</Text>
-              <RNPickerSelect
-                placeholder={{ label: "Select Blood Group", value: null }}
-                items={[
-                  { label: "A+", value: "A+" },
-                  { label: "A-", value: "A-" },
-                  { label: "B+", value: "B+" },
-                  { label: "B-", value: "B-" },
-                  { label: "AB+", value: "AB+" },
-                  { label: "AB-", value: "AB-" },
-                  { label: "O+", value: "O+" },
-                  { label: "O-", value: "O-" },
-                ]}
-                onValueChange={(value) => setBloodGroup(value)}
-                style={pickerSelectStyles}
-                value={bloodGroup}
-                useNativeAndroidPickerStyle={false}
-              />
+              <TouchableOpacity
+                style={styles.submitButton}
+                onPress={handleSubmit}
+              >
+                <Text style={styles.submitButtonText}>Save</Text>
+              </TouchableOpacity>
             </View>
           </ScrollView>
         </SafeAreaView>
@@ -197,25 +225,8 @@ const Profile = () => {
 };
 
 const pickerSelectStyles = StyleSheet.create({
-  inputIOS: {
-    fontSize: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: "gray",
-    borderRadius: 4,
-    color: "black",
-    paddingRight: 30, // to ensure the text is never behind the icon
-  },
-  inputAndroid: {
-    fontSize: 16,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderWidth: 0.5,
-    borderColor: "gray",
-    borderRadius: 8,
-    color: "black",
-    paddingRight: 30, // to ensure the text is never behind the icon
+  dropdown: {
+    borderColor: "#254336",
   },
 });
 
@@ -232,40 +243,28 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingHorizontal: 20,
     alignItems: "center",
-    justifyContent: "center",
   },
   topRow: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
     marginBottom: 20,
   },
   logo: {
-    width: 55,
-    height: 55,
+    width: 50,
+    height: 50,
     resizeMode: "contain",
-    marginRight: 50,
+  },
+  logoContainer: {
+    resizeMode: "contain",
   },
   titleText: {
     color: "#254336",
     fontSize: 25,
     fontWeight: "bold",
-    marginLeft: 40,
     textAlign: "center",
-  },
-  iconContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginLeft: "auto",
-    marginRight: 20,
-  },
-  notificationIcon: {
-    padding: 10,
-    marginLeft: 40,
-  },
-  settingsIcon: {
-    padding: 10,
-    marginLeft: 10,
+    flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
@@ -277,71 +276,114 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   profilePic: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 10,
+    width: 110,
+    height: 110,
+    borderRadius: 40,
+    marginBottom: 15,
+  },
+  editIcon: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    padding: 5,
   },
   profilePicText: {
     fontSize: 18,
-    color: "#254336",
+    fontWeight: "600",
     marginBottom: 20,
   },
   label: {
-    fontSize: 18,
+    fontSize: 19,
     color: "#254336",
-    marginVertical: 8,
-    alignSelf: "flex-start",
+    marginBottom: 3,
+    textAlign: "left",
+    width: "90%",
+    fontWeight: "500",
+    marginTop: 3,
   },
   input: {
-    borderWidth: 2,
-    borderColor: "#ccc",
-    padding: 8,
-    borderRadius: 4,
-    marginBottom: 16,
-    width: "80%",
-  },
-  incrementContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  incrementButton: {
-    width: 40,
     height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#E2E2E2",
-    borderRadius: 20,
-    marginHorizontal: 10,
-  },
-  incrementButtonText: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  incrementInput: {
-    borderWidth: 2,
-    borderColor: "#ccc",
-    padding: 8,
-    borderRadius: 4,
-    marginBottom: 16,
-    width: 100,
-    textAlign: "center",
+    borderColor: "#254336",
+    borderWidth: 1.5,
+    borderRadius: 15,
+    paddingHorizontal: 10,
+    marginVertical: 5,
+    width: "90%",
+    fontSize: 17,
+    color: "#254336",
+    marginBottom: 30,
   },
   phoneContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
-    width: "80%",
+    justifyContent: "space-between",
+    width: "90%",
   },
   sendOtpButton: {
-    backgroundColor: "#28A745",
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: "#254336",
+    borderRadius: 15,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    marginLeft: 10,
+    marginBottom: 25,
   },
   sendOtpText: {
-    color: "#fff",
-    fontSize: 14,
+    color: "white",
+    fontSize: 16,
+  },
+  incrementContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginVertical: 5,
+    width: "90%", // Adjusted width to 90% for consistent spacing
+  },
+  incrementButton: {
+    backgroundColor: "#254336",
+    borderRadius: 15,
+    padding: 5, // Adjusted padding to 5
+    width: 30, // Adjusted width to 30 for smaller buttons
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  incrementButtonLeft: {
+    marginRight: 5, // Added margin for left button
+  },
+  incrementButtonRight: {
+    marginLeft: 5, // Added margin for right button
+  },
+  incrementButtonText: {
+    color: "white",
+    fontSize: 20,
+  },
+  incrementInput: {
+    height: 40,
+    borderColor: "#254336",
+    borderWidth: 1.5,
+    borderRadius: 15,
+    paddingHorizontal: 10,
+    fontSize: 16,
+    color: "#254336",
+    textAlign: "center",
+    width: "40%", // Adjusted width to 40% for input field
+    marginBottom: 5,
+  },
+  submitButton: {
+    backgroundColor: "#254336",
+    borderRadius: 15,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    marginTop: 20,
+  },
+  submitButtonText: {
+    color: "white",
+    fontSize: 18,
+  },
+  bloodGroup: {
+    marginBottom: 18,
+    width: "90%", // Added width to bloodGroup container
   },
 });
 

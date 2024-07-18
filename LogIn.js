@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,15 +8,45 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FontAwesome, AntDesign } from "@expo/vector-icons";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSignUp = () => {
-    navigation.navigate("Login"); // Replace 'SignUp' with the actual screen name
+    navigation.navigate("SignUp");
+  };
+
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post(
+        "http://192.168.1.8:3001/api/v1/auth/login",
+        {
+          username,
+          password,
+        }
+      );
+      console.log("Login successful:", response.data);
+
+      // Store token in AsyncStorage
+      await AsyncStorage.setItem("token", response.data.token);
+
+      Alert.alert("Login successful!");
+      navigation.navigate("Main");
+    } catch (error) {
+      console.error("Login error:", error);
+      if (error.response) {
+        console.error("Response data:", error.response.data);
+      }
+      Alert.alert("Login error:", "Invalid credentials. Please try again.");
+    }
   };
 
   const handleFacebookLogin = () => {
@@ -25,6 +55,7 @@ const LoginScreen = () => {
 
   const handleGoogleLogin = () => {
     // Logic for Google login
+    navigation.navigate("Main");
   };
 
   return (
@@ -39,16 +70,23 @@ const LoginScreen = () => {
             <Text style={styles.titleText}>MyEasyPharma</Text>
           </View>
           <Text style={styles.signUpText}>Log In</Text>
-          <Text style={styles.labelText}>Email</Text>
-          <TextInput style={styles.input} placeholder="Enter your email" />
+          <Text style={styles.labelText}>Username</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your username"
+            value={username}
+            onChangeText={setUsername}
+          />
           <Text style={styles.labelText}>Password</Text>
           <TextInput
             style={styles.input}
             placeholder="Enter your password"
             secureTextEntry={true}
+            value={password}
+            onChangeText={setPassword}
           />
           <Text style={styles.forgotPassword}>Forgotten Password?</Text>
-          <TouchableOpacity style={styles.loginButton} onPress={handleSignUp}>
+          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
             <Text style={styles.loginButtonText}>Log In</Text>
           </TouchableOpacity>
           <View style={styles.dividerContainer}>
