@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import Navigation from "./StackNavigator";
-import { Provider } from "react-redux";
+import Axios from "axios";
+//import { Provider } from "react-redux";
 
 export default function App() {
   return (
