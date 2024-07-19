@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   Linking,
 } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
 import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -20,6 +22,13 @@ const ContactUs = () => {
   const handleWhatsappPress = () => {
     Linking.openURL("https://chat.whatsapp.com/GZtdT46ZgZq2FzxXd9l8rE");
   };
+  const handleEmailPress = () => {
+    Linking.openURL("mailto:info@myeasypharma.in");
+  };
+
+  const handlePhonePress = () => {
+    Linking.openURL("tel:+919315909654");
+  };
   const navigation = useNavigation();
   return (
     <ImageBackground
@@ -29,13 +38,27 @@ const ContactUs = () => {
       <View style={styles.overlay}>
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.topRow}>
-            <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+            {/*<TouchableOpacity onPress={() => navigation.navigate("Home")}>
               <Image
                 source={require("../assets/logo.png")}
                 style={styles.logo}
               />
             </TouchableOpacity>
             <Text style={styles.titleText}>Contact Us</Text>
+          </View>*/}
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Main")}
+              style={styles.backButton}
+            >
+              <MaterialIcons name="arrow-back" size={30} color="#254336" />
+            </TouchableOpacity>
+            <Text style={styles.titleText}>Contact Us</Text>
+            <View style={styles.logoContainer}>
+              <Image
+                source={require("../assets/logo.png")}
+                style={styles.logo}
+              />
+            </View>
           </View>
 
           <Text style={styles.bodyText}>
@@ -52,9 +75,20 @@ const ContactUs = () => {
             252, Upper Ground Floor Deepali, Pitampura, Delhi-110034
           </Text>
           <Text style={styles.sectionHeader}>Contact</Text>
-          <Text style={styles.bodyText}>
-            Email: info@myeasypharma.in{"\n"}Phone: +91-9315909654
-          </Text>
+          <View style={styles.contactContainer}>
+            <Text style={styles.bodyText}>
+              Email:{" "}
+              <TouchableOpacity onPress={handleEmailPress}>
+                <Text style={styles.linkText}>info@myeasypharma.in</Text>
+              </TouchableOpacity>
+            </Text>
+            <Text style={styles.bodyText}>
+              Phone:{" "}
+              <TouchableOpacity onPress={handlePhonePress}>
+                <Text style={styles.linkText}>+91-9315909654</Text>
+              </TouchableOpacity>
+            </Text>
+          </View>
           <Text style={styles.sectionHeader}>Connect</Text>
           <View style={styles.iconContainer}>
             <TouchableOpacity onPress={handleLinkedInPress}>
@@ -98,19 +132,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 20,
+    marginBottom: 30,
+    marginTop: 10,
   },
   logo: {
-    width: 55,
-    height: 55,
+    width: 50,
+    height: 50,
     resizeMode: "contain",
-    marginRight: 80,
+    marginRight: 15,
   },
   titleText: {
     color: "#254336",
     fontSize: 26,
     fontWeight: "700",
-    marginRight: 115,
+    marginRight: 60,
+    marginLeft: 89,
   },
   bodyText: {
     color: "#254336",
@@ -138,6 +174,14 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 43,
     //marginRight: 10,
+  },
+  linkText: {
+    color: "#007AFF",
+    textDecorationLine: "underline",
+    fontSize: 19,
+  },
+  contactContainer: {
+    marginBottom: 10,
   },
 });
 
