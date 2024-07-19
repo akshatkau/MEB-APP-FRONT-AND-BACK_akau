@@ -7,6 +7,8 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const HomeScreen = ({ navigation }) => {
   return (
@@ -19,6 +21,20 @@ const HomeScreen = ({ navigation }) => {
           <View style={styles.topRow}>
             <Image source={require("../assets/logo.png")} style={styles.logo} />
             <Text style={styles.titleText}>MyEasyPharma</Text>
+            <View style={styles.iconContainer}>
+              <Ionicons
+                name="notifications-sharp"
+                size={24}
+                color="black"
+                style={styles.notificationIcon}
+              />
+              <MaterialIcons
+                name="settings"
+                size={24}
+                color="black"
+                style={styles.settingsIcon}
+              />
+            </View>
           </View>
           <TouchableOpacity
             style={styles.button}
@@ -38,7 +54,6 @@ const HomeScreen = ({ navigation }) => {
           >
             <Text style={styles.buttonText}>FAQs</Text>
           </TouchableOpacity>
-
           <TouchableOpacity
             style={styles.button}
             onPress={() => navigation.navigate("ContactUs")}
@@ -68,20 +83,31 @@ const styles = StyleSheet.create({
   topRow: {
     flexDirection: "row",
     alignItems: "center", // Align items vertically in the row
-    justifyContent: "center", // Center items horizontally
+    justifyContent: "space-between", // Space out items horizontally
     marginBottom: 20, // Optional margin bottom for spacing
+    width: "100%", // Full width for the top row
   },
   logo: {
     width: 55,
     height: 55,
     resizeMode: "contain",
-    marginRight: 50, // Adjust spacing between logo and text
   },
   titleText: {
     color: "#254336",
     fontSize: 25,
     fontWeight: "bold",
-    marginRight: 100,
+    textAlign: "center",
+    flex: 1, // Flex to center the text
+  },
+  iconContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  notificationIcon: {
+    padding: 10,
+  },
+  settingsIcon: {
+    padding: 10,
   },
   button: {
     backgroundColor: "#254336",
