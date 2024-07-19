@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   View,
   Text,
@@ -14,8 +14,20 @@ import { useNavigation } from "@react-navigation/native";
 const HomePage = () => {
   const navigation = useNavigation();
 
+  // Create a ref to refer to the ScrollView
+  const scrollViewRef = useRef(null);
+
+  // Create a ref to refer to the services section
+  const servicesRef = useRef(null);
+
   const handleGetStarted = () => {
-    navigation.navigate("Main"); // Replace 'SignUp' with the actual screen name
+    navigation.navigate("Log"); // Replace 'Log' with the actual screen name
+  };
+
+  const handleScrollToServices = () => {
+    servicesRef.current.measureLayout(scrollViewRef.current, (x, y) => {
+      scrollViewRef.current.scrollTo({ y: y, animated: true });
+    });
   };
 
   return (
@@ -23,75 +35,86 @@ const HomePage = () => {
       source={require("../assets/backgroundimg.png")}
       style={styles.background}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.overlay}>
-          <SafeAreaView style={styles.container}>
-            <View style={styles.titleContainer}>
-              <Text style={styles.title}>Welcome to</Text>
-              <Text style={styles.titleBold}>MyEasyPharma</Text>
-            </View>
-            <Text style={styles.subtitle}>
-              AI Curated Corporate Wellness Program
-            </Text>
-            <Image
-              source={require("../assets/homepage.png")}
-              style={styles.image}
-            />
-            <TouchableOpacity
-              style={[styles.button, styles.margin]}
-              onPress={handleGetStarted}
-            >
-              <Text style={styles.buttonText}>Get started for free</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.bottomButton}>
-              <Text style={styles.bottomText}>Our Services</Text>
-            </TouchableOpacity>
+      <View style={styles.overlay}>
+        <SafeAreaView style={styles.safeArea}>
+          <ScrollView
+            ref={scrollViewRef}
+            contentContainerStyle={styles.scrollContainer}
+          >
+            <View style={styles.container}>
+              <View style={styles.titleContainer}>
+                <Text style={styles.title}>Welcome to</Text>
+                <Text style={styles.titleBold}>MyEasyPharma</Text>
+              </View>
+              <Text style={styles.subtitle}>
+                AI Curated Corporate Wellness Program
+              </Text>
+              <Image
+                source={require("../assets/homepage.png")}
+                style={styles.image}
+              />
+              <TouchableOpacity
+                style={[styles.button, styles.margin]}
+                onPress={handleGetStarted}
+              >
+                <Text style={styles.buttonText}>Get started for free</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.bottomButton}
+                onPress={handleScrollToServices}
+              >
+                <Text style={styles.bottomText}>Our Services</Text>
+              </TouchableOpacity>
 
-            {/* Service Boxes */}
-            <View style={styles.serviceBox}>
-              <View style={styles.serviceContent}>
-                <Image
-                  source={require("../assets/service1.png")}
-                  style={styles.serviceImage}
-                />
-                <Text style={styles.serviceText}>
-                  Delivering health and wellness by Ayush
-                </Text>
+              {/* Service Boxes */}
+              <View ref={servicesRef} style={styles.serviceBox}>
+                <View style={styles.serviceContent}>
+                  <Image
+                    source={require("../assets/service1.png")}
+                    style={styles.serviceImage}
+                  />
+                  <Text style={styles.serviceText}>
+                    Delivering health and wellness by Ayush
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.serviceBox}>
+                <View style={styles.serviceContent}>
+                  <Image
+                    source={require("../assets/service2.png")}
+                    style={styles.serviceImage}
+                  />
+                  <Text style={styles.serviceText}>
+                    Personalised Health plan for employees
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.serviceBox}>
+                <View style={styles.serviceContent}>
+                  <Image
+                    source={require("../assets/service3.png")}
+                    style={styles.serviceImage}
+                  />
+                  <Text style={styles.serviceText}>
+                    Enable productive and healthier corporates!
+                  </Text>
+                </View>
               </View>
             </View>
-
-            <View style={styles.serviceBox}>
-              <View style={styles.serviceContent}>
-                <Image
-                  source={require("../assets/service2.png")}
-                  style={styles.serviceImage}
-                />
-                <Text style={styles.serviceText}>
-                  Personalised Health plan for employees
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.serviceBox}>
-              <View style={styles.serviceContent}>
-                <Image
-                  source={require("../assets/service3.png")}
-                  style={styles.serviceImage}
-                />
-                <Text style={styles.serviceText}>
-                  Enable productive and healthier corporates!
-                </Text>
-              </View>
-            </View>
-          </SafeAreaView>
-        </View>
-      </ScrollView>
+          </ScrollView>
+        </SafeAreaView>
+      </View>
     </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   background: {
+    flex: 1,
+  },
+  safeArea: {
     flex: 1,
   },
   scrollContainer: {
@@ -143,7 +166,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     alignSelf: "center",
-    marginBottom: 30, // Reduced bottom margin for closer alignment
+    marginBottom: 60, // Increased bottom margin for more spacing
   },
   buttonText: {
     color: "white",
@@ -158,7 +181,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 30,
     alignSelf: "center",
-    marginBottom: 30, // Reduced bottom margin for closer alignment
+    marginBottom: 60, // Increased bottom margin for more spacing
   },
   bottomText: {
     fontSize: 16,
