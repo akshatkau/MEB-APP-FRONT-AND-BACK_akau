@@ -253,27 +253,18 @@ const FaqScreen = () => {
     >
       <View style={styles.overlay}>
         <SafeAreaView style={styles.container}>
-          {/* Top Row Container */}
           <View style={styles.topRow}>
-            <TouchableOpacity onPress={() => navigation.navigate("Home")}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Home")}
+              style={styles.backButton}
+            >
+              <MaterialIcons name="arrow-back" size={30} color="#254336" />
+            </TouchableOpacity>
+            <Text style={styles.titleText}>FAQs</Text>
+            <View style={styles.logoContainer}>
               <Image
                 source={require("../assets/logo.png")}
                 style={styles.logo}
-              />
-            </TouchableOpacity>
-            <Text style={styles.titleText}>FAQs</Text>
-            <View style={styles.iconContainer}>
-              <Ionicons
-                name="notifications-sharp"
-                size={24}
-                color="black"
-                style={styles.notificationIcon}
-              />
-              <MaterialIcons
-                name="settings"
-                size={24}
-                color="black"
-                style={styles.settingsIcon}
               />
             </View>
           </View>
@@ -348,16 +339,18 @@ const styles = StyleSheet.create({
     marginBottom: 20, // Optional margin bottom for spacing
   },
   logo: {
-    width: 55,
-    height: 55,
+    width: 50,
+    height: 50,
     resizeMode: "contain",
-    marginRight: 90,
+    marginLeft: 105,
+    marginRight: -65,
   },
   titleText: {
     color: "#254336",
     fontSize: 25,
     fontWeight: "bold",
-    marginRight: 50,
+    marginLeft: 120,
+    //marginRight: 10,
   },
   scrollContainer: {
     flexGrow: 1,
@@ -433,6 +426,10 @@ const styles = StyleSheet.create({
   },
   searchIcon: {
     marginLeft: 10,
+  },
+  backButton: {
+    marginLeft: -70,
+    padding: 5, // Adjust the value as needed
   },
 });
 
