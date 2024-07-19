@@ -12,12 +12,17 @@ import {
 } from "react-native";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 
 const SignupScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleSignup = async () => {
     try {
@@ -85,11 +90,19 @@ const SignupScreen = () => {
           <TextInput
             style={styles.input}
             placeholder="Enter your password"
-            secureTextEntry={true}
+            secureTextEntry={!showPassword}
             value={password}
             onChangeText={setPassword}
           />
-          <Text style={styles.forgotPassword}>Forgotten Password?</Text>
+          <TouchableOpacity onPress={togglePasswordVisibility}>
+            <Ionicons
+              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              size={24}
+              color="black"
+              style={styles.icon}
+            />
+          </TouchableOpacity>
+          <Text style={styles.forgotPassword}>Forgot Password?</Text>
           <Text style={styles.agreementText}>
             By creating an account you are agreeing to our{" "}
             <Text style={styles.underline}>Terms of Service</Text> and{" "}
@@ -205,7 +218,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
     textAlign: "center",
   },
+  icon: {
+    padding: 10,
+    marginTop: -44,
+    marginLeft: 350,
+  },
 });
 
 export default SignupScreen;
-
