@@ -8,13 +8,11 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
-  Pressable,
   TextInput,
 } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import { MaterialIcons } from "@expo/vector-icons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
-import { AntDesign } from "@expo/vector-icons";
 import { debounce } from "lodash";
 
 const BlogScreen = () => {
@@ -949,7 +947,7 @@ const BlogScreen = () => {
   const debouncedSearch = debounce(handleSearch, 800);
 
   function handleSearch(text) {
-    // Implement search logic here
+    // Implement search logic here if needed
   }
 
   const handleInputChange = (text) => {
@@ -970,86 +968,77 @@ const BlogScreen = () => {
       source={require("../assets/backgroundimg.png")}
       style={styles.background}
     >
-      <SafeAreaView style={{ flex: 1 }}>
-        <View style={styles.headerContainer}>
-          <Pressable
-            onPress={() => navigation.goBack()}
-            style={styles.backButton}
-          >
-            <MaterialIcons name="arrow-back" size={24} color="#254336" />
-          </Pressable>
-          <Image source={require("../assets/logo.png")} style={styles.logo} />
-          <Text style={styles.headerTitle}>Blogs</Text>
-        </View>
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search Blogs"
-            value={input}
-            onChangeText={handleInputChange}
-          />
-          <Ionicons
-            name="search"
-            size={23}
-            color="#254336"
-            style={styles.searchIcon}
-          />
-        </View>
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <View style={styles.blogContainer}>
-            {filteredBlogs.map((blog) => (
-              <TouchableOpacity
-                key={blog.id}
-                onPress={() => toggleExpand(blog.id)}
-              >
-                <View style={styles.blogItem}>
-                  <Image source={blog.image} style={styles.blogImage} />
-                  <Text style={styles.blogTitle}>{blog.title}</Text>
-                  {expandedBlogId === blog.id && (
-                    <View style={styles.blogContent}>
-                      {blog.content.map((contentItem, index) => {
-                        switch (contentItem.type) {
-                          case "text":
-                            return (
-                              <Text key={index} style={styles.blogText}>
-                                {contentItem.text}
-                              </Text>
-                            );
-                          case "image":
-                            return (
-                              <Image
-                                key={index}
-                                source={contentItem.src}
-                                style={styles.blogContentImage}
-                              />
-                            );
-                          case "subtitle":
-                            return (
-                              <Text key={index} style={styles.blogSubtitle}>
-                                {contentItem.text}
-                              </Text>
-                            );
-                          case "list":
-                            return (
-                              <View key={index} style={styles.blogList}>
-                                {contentItem.items.map((item, idx) => (
-                                  <Text key={idx} style={styles.blogListItem}>
-                                    - {item}
-                                  </Text>
-                                ))}
-                              </View>
-                            );
-                          default:
-                            return null;
-                        }
-                      })}
-                    </View>
-                  )}
-                </View>
-              </TouchableOpacity>
-            ))}
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.container}>
+          <View style={styles.headerContainer}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Main")}
+              style={styles.backButton}
+            >
+              <MaterialIcons name="arrow-back" size={30} color="#254336" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>Blogs</Text>
+            <View style={styles.logoContainer}>
+              <Image
+                source={require("../assets/logo.png")}
+                style={styles.logo}
+              />
+            </View>
           </View>
-        </ScrollView>
+          <View style={styles.searchContainer}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search Blogs"
+              value={input}
+              onChangeText={handleInputChange}
+            />
+            <Ionicons
+              name="search"
+              size={23}
+              color="#254336"
+              style={styles.searchIcon}
+            />
+          </View>
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <View style={styles.blogContainer}>
+              {filteredBlogs.map((blog) => (
+                <TouchableOpacity
+                  key={blog.id}
+                  onPress={() => toggleExpand(blog.id)}
+                >
+                  <View style={styles.blogItem}>
+                    <Image source={blog.image} style={styles.blogImage} />
+                    <Text style={styles.blogTitle}>{blog.title}</Text>
+                    {expandedBlogId === blog.id && (
+                      <View style={styles.blogContent}>
+                        {blog.content.map((contentItem, index) => {
+                          switch (contentItem.type) {
+                            case "text":
+                              return (
+                                <Text key={index} style={styles.blogText}>
+                                  {contentItem.text}
+                                </Text>
+                              );
+                            case "image":
+                              return (
+                                <Image
+                                  key={index}
+                                  source={contentItem.src}
+                                  style={styles.blogContentImage}
+                                />
+                              );
+                            default:
+                              return null;
+                          }
+                        })}
+                      </View>
+                    )}
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
+        </View>
       </SafeAreaView>
     </ImageBackground>
   );
@@ -1058,35 +1047,38 @@ const BlogScreen = () => {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
+    resizeMode: "cover",
   },
-  overlay: {
+  safeArea: {
     flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.7)", // Light overlay with 70% opacity
+    backgroundColor: "rgba(255, 255, 255, 0.7)", // Adjust opacity here
   },
   container: {
     flex: 1,
-    paddingTop: 50, // Adjust this value to give some top padding
-    paddingHorizontal: 20, // Adjust this value for horizontal spacing
-    alignItems: "center", // Center content horizontally
-    justifyContent: "center", // Center content vertically
   },
   headerContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 10,
-    backgroundColor: "transparent",
+    padding: 2,
+    marginBottom: 15,
   },
   backButton: {
     padding: 5,
+    marginLeft: 10,
   },
   logo: {
-    width: 40,
-    height: 40,
+    width: 50,
+    height: 50,
+    resizeMode: "contain",
+    marginRight: 15,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 25,
     fontWeight: "bold",
+    color: "#254336",
+    marginLeft: 50,
+    marginRight: 20,
   },
   searchContainer: {
     flexDirection: "row",
@@ -1098,7 +1090,6 @@ const styles = StyleSheet.create({
     borderColor: "#254336",
     paddingHorizontal: 10,
     height: 48,
-    borderColor: "#254336",
     marginBottom: 20,
   },
   searchInput: {
@@ -1129,6 +1120,7 @@ const styles = StyleSheet.create({
   blogImage: {
     width: "100%",
     height: 200,
+    resizeMode: "cover",
   },
   blogTitle: {
     fontSize: 18,
@@ -1149,21 +1141,9 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 200,
     marginBottom: 10,
-  },
-  blogSubtitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginVertical: 10,
-    color: "#254336",
-  },
-  blogList: {
-    marginBottom: 10,
-  },
-  blogListItem: {
-    fontSize: 18,
-    marginBottom: 5,
-    color: "#254336",
+    resizeMode: "cover",
   },
 });
 
 export default BlogScreen;
+
