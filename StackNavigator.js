@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import HomeScreen from "./screens/HomeScreen";
 import Dashboard from "./screens/Dashboard";
-import LoginScreen from "./screens/LoginScreen";
+import SignupScreen from "./screens/SignupScreen";
 import AboutUsScreen from "./screens/AboutUsScreen";
 import FaqScreen from "./screens/FaqScreen";
 import HomePage from "./screens/HomePage";
@@ -53,8 +53,8 @@ function BottomTabs() {
         }}
       />
       <Tab.Screen
-        name="Log"
-        component={LogIn}
+        name="Dashboard"
+        component={Dashboard}
         options={{
           tabBarLabel: "Profile",
           headerShown: false,
@@ -81,26 +81,26 @@ function Navigation() {
           component={HomePage}
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name="Main"
+          component={BottomTabs}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="SignUp"
+          component={SignupScreen}
+          options={{ headerShown: false }}
+        />
 
         <Stack.Screen
           name="ContactUs"
           component={ContactUs}
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name="Main"
-          component={BottomTabs}
-          options={{ headerShown: false }}
-        />
 
         <Stack.Screen
           name="Log"
           component={LogIn}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
           options={{ headerShown: false }}
         />
 
@@ -119,11 +119,7 @@ function Navigation() {
           component={BlogScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen
-          name="Dashboard"
-          component={Dashboard}
-          options={{ headerShown: false }}
-        />
+
         <Stack.Screen
           name="Profile"
           component={Profile}
