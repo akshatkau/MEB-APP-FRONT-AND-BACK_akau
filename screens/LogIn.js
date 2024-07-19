@@ -14,8 +14,9 @@ import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FontAwesome, AntDesign } from "@expo/vector-icons";
+import jwtDecode from "jwt-decode";
 
-const LoginScreen = () => {
+const Login = () => {
   const navigation = useNavigation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -33,6 +34,7 @@ const LoginScreen = () => {
           password,
         }
       );
+      console.log("Response data structure:", response.data);
       console.log("Login successful:", response.data);
 
       // Verify that the token is present in the response
@@ -42,18 +44,20 @@ const LoginScreen = () => {
       }
 
       // Store token in AsyncStorage
-      await AsyncStorage.setItem("token", token);
+      await AsyncStorage.setItem("authToken", token);
       Alert.alert("Login successful!");
       navigation.navigate("Profile", {
         username: response.data.username,
-        email: response.data.email,
       });
     } catch (error) {
       console.error("Login error:", error);
 
       // Log specific response data if available
       if (error.response) {
-        console.error("Response data:", error.response.data);
+        console.error(
+          "Login error:",
+          error.response ? error.response.data : error.message
+        );
       }
 
       Alert.alert("Login error:", "Invalid credentials. Please try again.");
@@ -245,4 +249,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default Login;
