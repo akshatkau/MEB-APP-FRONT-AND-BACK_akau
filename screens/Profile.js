@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,15 +10,23 @@ import {
   TextInput,
   SafeAreaView,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import jwtDecode from "jwt-decode";
 import { useNavigation } from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { MaterialIcons } from "@expo/vector-icons";
 import DropDownPicker from "react-native-dropdown-picker";
+import axios from "axios";
+import { useRoute } from "@react-navigation/native";
 
 const Profile = () => {
+  const route = useRoute();
+  const { username, email } = route.params;
   const navigation = useNavigation();
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
+  const [tokenValid, setTokenValid] = useState(true);
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+
   const [password, setPassword] = useState("");
   const [height, setHeight] = useState(0);
   const [weight, setWeight] = useState(0);
@@ -37,18 +45,204 @@ const Profile = () => {
     { label: "O-", value: "O-" },
   ]);
 
-  const incrementValue = (value, setter) => setter(value + 1);
-  const decrementValue = (value, setter) => setter(value > 0 ? value - 1 : 0);
+  const [profilePicUri, setProfilePicUri] = useState(null);
+  const [isEditingProfilePic, setIsEditingProfilePic] = useState(false);
 
-  const handleEditProfilePic = () => {
-    // Handle edit profile picture action here
-    console.log("Edit profile picture");
+  const checkTokenValidity = async () => {
+    try {
+      const token = await AsyncStorage.getItem("authToken");
+
+      if (!token) {
+        setTokenValid(false);
+        return;
+      }
+
+      const decodedToken = jwtDecode(token);
+      const currentTime = Date.now() / 1000; // Current time in seconds
+
+      if (decodedToken.exp < currentTime) {
+        setTokenValid(false);
+        // Optionally, clear the token and navigate to login
+        await AsyncStorage.removeItem("authToken");
+        navigation.navigate("Login");
+        return;
+      }
+
+      setTokenValid(true);
+    } catch (error) {
+      console.error("Error checking token validity:", error);
+      setTokenValid(false);
+    }
   };
 
-  const handleSubmit = () => {
-    // Handle the submit action here
-    navigation.navigate("Dashboard");
-    console.log("Profile submitted");
+  const fetchUserData = async () => {
+    try {
+      await checkTokenValidity();
+      const token = await AsyncStorage.getItem("authToken"); // Retrieve the token from storage or context
+      console.log("Retrieved token:", token);
+
+      if (!token || !tokenValid) {
+        throw new Error("No valid token found");
+      }
+      const response = await axios.get(
+        "http://192.168.1.8:3001/api/v1/users/profile",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("Response data:", response.data);
+      const userProfileData = response.data;
+      setUserEmail(userProfileData.email);
+      setUsername(userProfileData.username);
+      setHeight(userProfileData.height);
+      setWeight(userProfileData.weight);
+      setPhone(userProfileData.phone);
+      setAge(userProfileData.age);
+      setBloodGroup(userProfileData.bloodGroup);
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const incrementValue = (value, setter) => setter(value + 1);
+  const decrementValue = (value, setter) => setter(value > 0 ? value - 1 : 0);
+  const addHealthInfo = async () => {
+    try {
+      const healthData = {
+        height: height,
+        weight: weight,
+        bloodGroup: bloodGroup,
+        // Add more health data fields as needed
+      };
+
+      {
+        /*const response = await fetch(`/api/v1/users/${userId}/health`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Add authorization headers if needed
+        },
+        body: JSON.stringify(healthData),
+      });*/
+      }
+      const response = await axios.get(
+        "http://192.168.1.8:3001/api/v1/users/profile",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Ensure this format
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to add health information");
+      }
+
+      console.log("Health information added successfully");
+    } catch (error) {
+      console.error("Error adding health information:", error);
+      // Handle error state or show error message to user
+    }
+  };
+
+  const updateHealthInfo = async () => {
+    try {
+      const updatedHealthData = {
+        height: height,
+        weight: weight,
+        bloodGroup: bloodGroup,
+        // Add more updated health data fields as needed
+      };
+
+      const response = await fetch(`/api/v1/users/${userId}/health`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          // Add authorization headers if needed
+        },
+        body: JSON.stringify(updatedHealthData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update health information");
+      }
+
+      console.log("Health information updated successfully");
+    } catch (error) {
+      console.error("Error updating health information:", error);
+      // Handle error state or show error message to user
+    }
+  };
+  const handleEditProfilePic = () => {
+    setIsEditingProfilePic(true); // Set editing state to true
+    // You can implement further logic here for editing the profile picture
+    console.log("Editing profile picture...");
+  };
+
+  const handleSubmit = async () => {
+    try {
+      await saveProfileData();
+      navigation.navigate("Main", {
+        updatedProfile: {
+          username,
+          email,
+          phone,
+          height,
+          weight,
+          age,
+          bloodGroup,
+        },
+      });
+      console.log("Profile submitted");
+    } catch (error) {
+      console.error("Error submitting profile:", error);
+    }
+  };
+
+  const saveProfileData = async () => {
+    try {
+      const profileData = {
+        username: userName, // Note: `username` should be replaced with `userName`
+        email: userEmail, // Note: `email` should be replaced with `userEmail`
+        password: password,
+        height: height,
+        weight: weight,
+        phone: phone,
+        age: age,
+        bloodGroup: bloodGroup,
+      };
+
+      const token = await AsyncStorage.getItem("authToken");
+      if (!token || !tokenValid) {
+        throw new Error("No valid token found");
+      }
+
+      const response = await fetch(
+        `http://192.168.1.8:3001/api/v1/users/${userId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(profileData),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to save profile data");
+      }
+
+      console.log("Profile data saved successfully");
+    } catch (error) {
+      console.error("Error saving profile data:", error);
+    }
   };
 
   return (
@@ -60,7 +254,7 @@ const Profile = () => {
         <SafeAreaView style={styles.container}>
           {/* Top Row Container */}
           <View style={styles.topRow}>
-            <TouchableOpacity onPress={() => navigation.navigate("Dashboard")}>
+            <TouchableOpacity onPress={() => navigation.navigate("Main")}>
               <MaterialIcons name="arrow-back" size={30} color="#254336" />
             </TouchableOpacity>
             <Text style={styles.titleText}>User Profile</Text>
@@ -79,7 +273,11 @@ const Profile = () => {
             <View style={styles.contentContainer}>
               <TouchableOpacity onPress={handleEditProfilePic}>
                 <Image
-                  source={require("../assets/edit.jpg")}
+                  source={
+                    profilePicUri
+                      ? { uri: profilePicUri }
+                      : require("../assets/edit.jpg")
+                  }
                   style={styles.profilePic}
                 />
                 <Ionicons
@@ -89,13 +287,13 @@ const Profile = () => {
                   style={styles.editIcon}
                 />
               </TouchableOpacity>
-              <Text style={styles.profilePicText}>Hello, User Name!</Text>
+              <Text style={styles.profilePicText}>Hello, {username}!</Text>
 
               <Text style={styles.label}>Email:</Text>
               <TextInput
                 style={styles.input}
-                value={email}
-                onChangeText={setEmail}
+                value={userEmail}
+                onChangeText={setUserEmail}
                 keyboardType="email-address"
                 placeholder="Enter your email"
               />
@@ -103,18 +301,9 @@ const Profile = () => {
               <Text style={styles.label}>Username:</Text>
               <TextInput
                 style={styles.input}
-                value={username}
-                onChangeText={setUsername}
+                value={userName}
+                onChangeText={setUserName}
                 placeholder="Enter your username"
-              />
-
-              <Text style={styles.label}>Password:</Text>
-              <TextInput
-                style={styles.input}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                placeholder="Enter your password"
               />
 
               <Text style={styles.label}>Phone Number:</Text>
