@@ -14,9 +14,8 @@ import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FontAwesome, AntDesign } from "@expo/vector-icons";
-import jwtDecode from "jwt-decode";
 
-const Login = () => {
+const LogIn = () => {
   const navigation = useNavigation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -28,39 +27,41 @@ const Login = () => {
   const handleLogin = async () => {
     try {
       const response = await axios.post(
-        "http://192.168.1.8:3001/api/v1/auth/login",
+        "http://localhost:3005/api/v1/auth/login",
         {
           username,
           password,
         }
       );
-      console.log("Response data structure:", response.data);
       console.log("Login successful:", response.data);
+      Alert.alert("Login successful!");
+
+      // Log the entire response for debugging
+      console.log("Full response:", response);
 
       // Verify that the token is present in the response
       const { token } = response.data;
+
       if (!token) {
-        throw new Error("Token not found in response");
+        throw new Error("Token is missing from the response");
       }
 
-      // Store token in AsyncStorage
-      await AsyncStorage.setItem("authToken", token);
-      Alert.alert("Login successful!");
-      navigation.navigate("Profile", {
-        username: response.data.username,
-      });
+      // Store the token securely in AsyncStorage
+      await storeToken(token);
+
+      navigation.navigate("Main");
     } catch (error) {
       console.error("Login error:", error);
+      Alert.alert("Login failed", "Invalid username or password");
+    }
+  };
 
-      // Log specific response data if available
-      if (error.response) {
-        console.error(
-          "Login error:",
-          error.response ? error.response.data : error.message
-        );
-      }
-
-      Alert.alert("Login error:", "Invalid credentials. Please try again.");
+  const storeToken = async (token) => {
+    try {
+      await AsyncStorage.setItem("userToken", token);
+      console.log("Token stored successfully");
+    } catch (e) {
+      console.error("Failed to save the token to the storage", e);
     }
   };
 
@@ -100,7 +101,11 @@ const Login = () => {
             value={password}
             onChangeText={setPassword}
           />
-          <Text style={styles.forgotPassword}>Forgotten Password?</Text>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("ForgotPassword")}
+          >
+            <Text style={styles.forgotPassword}>Forgot Password?</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
             <Text style={styles.loginButtonText}>Log In</Text>
           </TouchableOpacity>
@@ -141,7 +146,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
   },
   container: {
     flex: 1,
@@ -249,4 +254,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Login;
+export default LogIn;
