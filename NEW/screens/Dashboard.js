@@ -19,37 +19,22 @@ const Dashboard = () => {
   const navigation = useNavigation();
   const [userDetails, setUserDetails] = useState({ username: "" });
   const [userName, setUserName] = useState("");
+  const [age, setAge] = useState("");
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Fetch token and username from AsyncStorage
-        const token = await AsyncStorage.getItem("authToken");
-        const storedUserName = await AsyncStorage.getItem("@user_name");
-        //console.log("Decoded Token:", decodedToken);
-
-        if (!token) {
-          throw new Error("No token found");
-        }
-        //console.log("Decoded Token:", decodedToken);
-        const decodedToken = jwtDecode(token);
-        //console.log("Decoded Token:", decodedToken);
-
-        const userId = decodedToken.userId; // Adjust this according to your JWT structure
-        console.log("Decoded Token:", decodedToken);
         const response = await axios.get(
-          `http://localhost:3001/api/v1/users/${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          "http://localhost:3001/api/v1/auth/me",
+          {}
         );
 
+        console.log(response.data);
+        // Update states with the response data
         setUserDetails(response.data);
-        setUserName(storedUserName); // Set username from AsyncStorage
+        setUserName(response.data.username);
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        //console.error("Error fetching user data:", error);
       }
     };
 
