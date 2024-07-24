@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -14,16 +14,35 @@ import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FontAwesome, AntDesign } from "@expo/vector-icons";
+import store from "./redux/store";
 
 const LogIn = () => {
   const navigation = useNavigation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [userId, setUserId] = useState("");
 
   const handleSignUp = () => {
     navigation.navigate("SignUp");
   };
+  useEffect(() => {
+    if (userId) {
+      const fetchUserData = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:3001/api/v1/users/${userId}/health`
+          );
 
+          console.log(response.data);
+          // Update states with the response data
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      };
+
+      fetchUserData();
+    }
+  }, [userId]);
   const handleLogin = async () => {
     try {
       const response = await axios.post(
@@ -31,28 +50,39 @@ const LogIn = () => {
         {
           username,
           password,
+        },
+        {
+          withCredentials: true, // Ensure cookies are sent and received
         }
       );
-      console.log("Login successful:", response.data);
-      Alert.alert("Login successful!");
 
-      // Log the entire response for debugging
-      console.log("Full response:", response);
+      console.log("Login response:", response.data);
+      console.log("userId: ", response.data.userId);
 
-      // Verify that the token is present in the response
-      const { token } = response.data;
-      console.log(response);
-      if (!token) {
-        throw new Error("Token is missing from the response");
+      const { userId, token, message } = response.data;
+
+      if (token && userId) {
+        await AsyncStorage.setItem("authToken", token);
+        await AsyncStorage.setItem("userId", userId);
+
+        //fetchUserData(userId); // Fetch user data after storing the user ID
+        storeToken(token);
+        storeUserId(userId);
+
+        console.log(response);
+        {
+          /*if(!fetchUserData) {
+          navigation.navigate("Name");
+        } else {*/
+        }
+        navigation.navigate("Main");
+        //}
+        Alert.alert("Login Successful!");
+      } else {
+        throw new Error("Token or userId is missing from the response");
       }
-
-      // Store the token securely in AsyncStorage
-      await storeToken(token);
-
-      navigation.navigate("Main");
     } catch (error) {
       console.error("Login error:", error);
-      Alert.alert("Login failed", "Invalid username or password");
     }
   };
 
@@ -62,6 +92,15 @@ const LogIn = () => {
       console.log("Token stored successfully");
     } catch (e) {
       console.error("Failed to save the token to the storage", e);
+    }
+  };
+
+  const storeUserId = async (userId) => {
+    try {
+      await AsyncStorage.setItem("userId", userId);
+      console.log("UserId stored successfully");
+    } catch (e) {
+      console.error("Failed to save the userId to the storage", e);
     }
   };
 
