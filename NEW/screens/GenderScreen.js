@@ -31,11 +31,15 @@ const GenderScreen = () => {
 
         // Continue to the next step
       } else if (isGenderSelected == "Prefer not to say") {
-        Alert.alert("Gender Selected", `You selected: Prefer not to say`);
+        Alert.alert("Gender Selected", "You selected: Other");
         navigation.navigate("Age");
+      } else if (isGenderSelected == "Other") {
+        Alert.alert("Gender Selected", "You selected: Other");
+        navigation.navigate("Age");
+      }
 
-        // Continue to the next step
-      } else {
+      // Continue to the next step
+      else {
         Alert.alert("Error", "Please select your gender.");
       }
     }
@@ -49,7 +53,7 @@ const GenderScreen = () => {
       <View style={styles.overlay}>
         <SafeAreaView style={styles.container}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("SignUp")}
+            onPress={() => navigation.navigate("Name")}
             style={styles.backButton}
           >
             <MaterialIcons name="arrow-back" size={30} color="#254336" />
@@ -73,7 +77,6 @@ const GenderScreen = () => {
                 style={styles.genderIcon}
               />
               <Text style={styles.genderText}>Male</Text>
-              <Text style={styles.chromosomeText}>XY Chromosome</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -89,10 +92,15 @@ const GenderScreen = () => {
                 style={styles.genderIcon}
               />
               <Text style={styles.genderText}>Female</Text>
-              <Text style={styles.chromosomeText}>XX Chromosome</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => handleGenderSelect("Other")}
+            >
+              <Text style={styles.secondaryButtonText}>Other</Text>
+            </TouchableOpacity>
             <TouchableOpacity
               style={styles.secondaryButton}
               onPress={() => handleGenderSelect("Prefer not to say")}
@@ -170,8 +178,8 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: 18,
-    top: -200,
-    left: 360,
+    top: -130,
+    left: 340,
   },
   buttonContainer: {
     marginTop: 20,

@@ -131,6 +131,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     color: "#254336",
+    marginTop: -10,
   },
   titleBold: {
     fontSize: 24,
@@ -161,8 +162,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     alignSelf: "center",
-    marginBottom: 60,
-    marginTop: 10,
+    marginBottom: 45,
+    marginTop: 5,
   },
   buttonText: {
     color: "white",
@@ -177,7 +178,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 30,
     alignSelf: "center",
-    marginBottom: 60, // Increased bottom margin for more spacing
+    marginBottom: 40, // Increased bottom margin for more spacing
   },
   bottomText: {
     fontSize: 16,

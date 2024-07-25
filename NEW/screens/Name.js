@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,16 +7,17 @@ import {
   TouchableOpacity,
   Alert,
   ImageBackground,
+  TextInput,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { MaterialIcons } from "@expo/vector-icons";
-import { Picker } from "@react-native-picker/picker";
+import { MaterialIcons, Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect } from "react";
 
-const AgeSelection = () => {
+const Name = () => {
   const navigation = useNavigation();
-  const [selectedAge, setSelectedAge] = useState("18");
+  const [name, setName] = useState("");
   const [userId, setUserId] = useState("");
 
   useEffect(() => {
@@ -37,20 +38,28 @@ const AgeSelection = () => {
     getUserId();
   }, []);
 
-  const handleContinue = async () => {
+  const handleUpdate = async () => {
     try {
-      const response = await axios.patch(
+      const response = await axios.post(
         `http://localhost:3001/api/v1/users/${userId}/health`,
         {
-          age: selectedAge,
+          name: name,
+          age: 0,
+          height: 0,
+          weight: 0,
+          bloodGroup: "Unknown",
+          address: "Dummy Address",
         }
       );
-      Alert.alert("Selected Age", `You selected: ${selectedAge}`);
-      navigation.navigate("Height");
+      Alert.alert(`Hello: ${name}!`);
     } catch (error) {
       console.error(error);
-      Alert.alert("Error", `Failed to update age: ${error.message}`);
+      Alert.alert("Error", `Failed to update name: ${error.message}`);
     }
+  };
+
+  const handleNext = () => {
+    navigation.navigate("Gender"); // Replace with the actual name of the next screen
   };
 
   return (
@@ -61,37 +70,26 @@ const AgeSelection = () => {
       <View style={styles.overlay}>
         <SafeAreaView style={styles.container}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("Gender")}
+            onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
             <MaterialIcons name="arrow-back" size={30} color="#254336" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate("Height")}>
-            <Text style={styles.skipText}>Skip</Text>
+          <Text style={styles.titleText}>Enter your Name</Text>
+
+          <TextInput
+            style={styles.input}
+            placeholder="Enter name"
+            value={name}
+            onChangeText={setName}
+          />
+
+          <TouchableOpacity style={styles.updateButton} onPress={handleUpdate}>
+            <Text style={styles.updateButtonText}>Update</Text>
           </TouchableOpacity>
-          <Text style={styles.titleText}>What's your Age?</Text>
 
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={selectedAge}
-              onValueChange={(itemValue) => setSelectedAge(itemValue)}
-              style={styles.picker}
-            >
-              {Array.from({ length: 83 }, (_, i) => i + 18).map((age) => (
-                <Picker.Item
-                  key={age}
-                  label={age.toString()}
-                  value={age.toString()}
-                />
-              ))}
-            </Picker>
-          </View>
-
-          <TouchableOpacity
-            style={styles.continueButton}
-            onPress={handleContinue}
-          >
-            <Text style={styles.continueButtonText}>Continue</Text>
+          <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
+            <Ionicons name="arrow-forward" size={30} color="white" />
           </TouchableOpacity>
         </SafeAreaView>
       </View>
@@ -118,31 +116,25 @@ const styles = StyleSheet.create({
     top: 65,
     left: 15,
   },
-  skipText: {
-    position: "absolute",
-    top: -295,
-    right: 15,
-    fontSize: 18,
-    color: "#254336",
-  },
   titleText: {
     color: "#254336",
     fontSize: 30,
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: -200,
     marginBottom: 40,
   },
-  pickerContainer: {
-    marginBottom: 20,
-    backgroundColor: "white",
+  input: {
+    height: 50,
+    borderColor: "#254336",
+    borderWidth: 1,
     borderRadius: 10,
+    paddingHorizontal: 20,
+    fontSize: 18,
+    marginBottom: 20,
+    width: 350,
+    marginLeft: 24,
   },
-  picker: {
-    height: 200,
-    width: "100%",
-  },
-  continueButton: {
+  updateButton: {
     marginTop: 20,
     backgroundColor: "#254336",
     paddingVertical: 12,
@@ -152,11 +144,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     alignSelf: "center",
   },
-  continueButtonText: {
+  updateButtonText: {
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
   },
+  nextButton: {
+    position: "absolute",
+    bottom: 50,
+    right: 30,
+    backgroundColor: "#254336",
+    borderRadius: 25,
+    padding: 10,
+  },
 });
 
-export default AgeSelection;
+export default Name;

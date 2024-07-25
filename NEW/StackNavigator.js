@@ -23,6 +23,7 @@ import SleepLevel from "./screens/SleepLevel";
 import DailyStepsScreen from "./screens/DailyStepsScreen";
 import WaterIntake from "./screens/WaterIntake";
 import Height from "./screens/Height";
+import Name from "./screens/Name";
 const Tab = createBottomTabNavigator();
 
 function BottomTabs() {
@@ -96,6 +97,12 @@ function Navigation() {
           component={HomePage}
           options={{ headerShown: false }}
         />
+        <Stack.Screen
+          name="Name"
+          component={Name}
+          options={{ headerShown: false }}
+        />
+
         <Stack.Screen
           name="Gender"
           component={GenderScreen}

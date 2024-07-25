@@ -12,12 +12,15 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialIcons } from "@expo/vector-icons";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width } = Dimensions.get("window");
 
 const Weight = () => {
   const navigation = useNavigation();
   const [selectedWeight, setSelectedWeight] = useState(60);
+  const [userId, setUserId] = useState("");
   const flatListRef = useRef(null);
 
   useEffect(() => {
@@ -31,26 +34,52 @@ const Weight = () => {
       }
     }, 100);
   }, []);
+  useEffect(() => {
+    const getUserId = async () => {
+      try {
+        const storedUserId = await AsyncStorage.getItem("userId");
+        if (storedUserId) {
+          console.log("userId", storedUserId);
+          setUserId(storedUserId);
+        } else {
+          console.error("No userId found in storage");
+        }
+      } catch (e) {
+        console.error("Failed to fetch the userId from storage", e);
+      }
+    };
 
-  const handleContinue = () => {
-    Alert.alert("Selected Weight", `You selected: ${selectedWeight} kg`);
-    navigation.navigate("BloodType");
+    getUserId();
+  }, []);
+
+  const handleContinue = async () => {
+    try {
+      const response = await axios.patch(
+        `http://localhost:3001/api/v1/users/${userId}/health`,
+        {
+          weight: selectedWeight,
+        }
+      );
+      Alert.alert("Selected Height", `You selected: ${selectedWeight}`);
+      navigation.navigate("BloodType");
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", `Failed to update weight: ${error.message}`);
+    }
   };
 
-  const renderWeightItem = ({ item }) => {
-    return (
-      <View style={styles.weightItem}>
-        <Text
-          style={[
-            styles.weightText,
-            item === selectedWeight && styles.selectedWeightText,
-          ]}
-        >
-          {item}
-        </Text>
-      </View>
-    );
-  };
+  const renderWeightItem = ({ item }) => (
+    <View style={styles.weightItem}>
+      <Text
+        style={[
+          styles.weightText,
+          item === selectedWeight && styles.selectedWeightText,
+        ]}
+      >
+        {item}
+      </Text>
+    </View>
+  );
 
   const getItemLayout = (data, index) => ({
     length: width / 5,
@@ -73,7 +102,7 @@ const Weight = () => {
       <View style={styles.overlay}>
         <SafeAreaView style={styles.container}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("Age")}
+            onPress={() => navigation.goBack()}
             style={styles.backButton}
           >
             <MaterialIcons name="arrow-back" size={30} color="#254336" />
@@ -145,7 +174,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     position: "absolute",
-    top: -310,
+    top: -220,
     right: 15,
     fontSize: 18,
     color: "#254336",
@@ -156,8 +185,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginTop: -100,
-    marginBottom: 40,
-    marginTop: -180,
+    marginBottom: 30,
   },
   selectedWeightContainer: {
     alignItems: "center",
@@ -171,7 +199,9 @@ const styles = StyleSheet.create({
     fontSize: 90,
     fontWeight: "bold",
     color: "#254336",
-    marginBottom: 60,
+    marginBottom: 30,
+    marginTop: 30,
+    marginLeft: 60,
   },
   weightContainer: {
     marginBottom: 20,
@@ -179,7 +209,7 @@ const styles = StyleSheet.create({
   weightList: {
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: (width - width / 5) / 2, // Center the items in the middle of the screen
+    paddingHorizontal: (width - width / 5) / 2,
   },
   weightItem: {
     width: width / 5,
@@ -193,22 +223,20 @@ const styles = StyleSheet.create({
   },
   selectedWeightText: {
     fontWeight: "600",
-    fontSize: 49,
-    color: "#254336",
+    fontSize: 42,
   },
   continueButton: {
-    marginTop: 20,
     backgroundColor: "#254336",
-    paddingVertical: 12,
-    paddingHorizontal: 10,
+    paddingVertical: 15,
     borderRadius: 25,
-    width: "70%",
     alignItems: "center",
-    alignSelf: "center",
+    marginTop: 30,
+    marginLeft: 60,
+    width: "70%",
   },
   continueButtonText: {
-    color: "white",
-    fontSize: 16,
+    color: "#fff",
+    fontSize: 20,
     fontWeight: "bold",
   },
 });

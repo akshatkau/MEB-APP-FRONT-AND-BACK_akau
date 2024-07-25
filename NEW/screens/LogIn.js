@@ -15,16 +15,19 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { FontAwesome, AntDesign } from "@expo/vector-icons";
 import store from "./redux/store";
+import { Ionicons } from "@expo/vector-icons";
 
 const LogIn = () => {
   const navigation = useNavigation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [userId, setUserId] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSignUp = () => {
     navigation.navigate("SignUp");
   };
+
   useEffect(() => {
     if (userId) {
       const fetchUserData = async () => {
@@ -43,6 +46,7 @@ const LogIn = () => {
       fetchUserData();
     }
   }, [userId]);
+
   const handleLogin = async () => {
     try {
       const response = await axios.post(
@@ -65,18 +69,28 @@ const LogIn = () => {
         await AsyncStorage.setItem("authToken", token);
         await AsyncStorage.setItem("userId", userId);
 
-        //fetchUserData(userId); // Fetch user data after storing the user ID
         storeToken(token);
         storeUserId(userId);
 
-        console.log(response);
-        {
-          /*if(!fetchUserData) {
+        // Fetch user health data
+        try {
+          const userResponse = await axios.get(
+            `http://localhost:3001/api/v1/users/${userId}/health`
+          );
+
+          if (userResponse.data) {
+            // User health details exist
+            navigation.navigate("Main");
+          } else {
+            // User health details do not exist
+            navigation.navigate("Name");
+          }
+        } catch (error) {
+          // Error fetching user health data, navigate to "Name"
+          console.error("Error fetching user health data:", error);
           navigation.navigate("Name");
-        } else {*/
         }
-        navigation.navigate("Main");
-        //}
+
         Alert.alert("Login Successful!");
       } else {
         throw new Error("Token or userId is missing from the response");
@@ -103,6 +117,9 @@ const LogIn = () => {
       console.error("Failed to save the userId to the storage", e);
     }
   };
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleFacebookLogin = () => {
     // Logic for Facebook login
@@ -110,7 +127,7 @@ const LogIn = () => {
 
   const handleGoogleLogin = () => {
     // Logic for Google login
-    navigation.navigate("Main");
+    // navigation.navigate("Main");
   };
 
   return (
@@ -140,6 +157,14 @@ const LogIn = () => {
             value={password}
             onChangeText={setPassword}
           />
+          <TouchableOpacity onPress={togglePasswordVisibility}>
+            <Ionicons
+              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              size={24}
+              color="black"
+              style={styles.icon}
+            />
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={() => navigation.navigate("ForgotPassword")}
           >
@@ -290,6 +315,11 @@ const styles = StyleSheet.create({
   },
   googleButton: {
     backgroundColor: "#DB4437",
+  },
+  icon: {
+    padding: 10,
+    marginTop: -44,
+    marginLeft: 330,
   },
 });
 

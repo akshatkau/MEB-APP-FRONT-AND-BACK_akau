@@ -28,12 +28,14 @@ const HomeScreen = ({ navigation }) => {
                 color="black"
                 style={styles.notificationIcon}
               />
-              <MaterialIcons
-                name="settings"
-                size={24}
-                color="black"
-                style={styles.settingsIcon}
-              />
+              <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+                <MaterialIcons
+                  name="settings"
+                  size={24}
+                  color="black"
+                  style={styles.settingsIcon}
+                />
+              </TouchableOpacity>
             </View>
           </View>
           <TouchableOpacity

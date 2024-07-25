@@ -72,7 +72,7 @@ const SignupScreen = () => {
       );
       console.log("Signup successful:", response.data);
       Alert.alert("Signup successful!");
-      navigation.navigate("Gender");
+      navigation.navigate("Log");
     } catch (error) {
       console.error("Signup error:", error);
       if (error.response) {
@@ -162,9 +162,7 @@ const SignupScreen = () => {
           <Text style={styles.agreementText}>
             By creating an account you are agreeing to our{" "}
             <Text style={styles.underline}>Terms of Service</Text> and{" "}
-            <TouchableOpacity onPress={() => navigation.navigate("Gender")}>
-              <Text style={styles.underline}>Privacy Policy</Text>
-            </TouchableOpacity>
+            <Text style={styles.underline}>Privacy Policy</Text>
           </Text>
           <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
             <Text style={styles.signupButtonText}>Sign Up</Text>
@@ -279,7 +277,7 @@ const styles = StyleSheet.create({
   icon: {
     padding: 10,
     marginTop: -44,
-    marginLeft: 350,
+    marginLeft: 330,
   },
 });
 

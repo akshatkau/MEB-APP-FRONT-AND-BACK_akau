@@ -12,6 +12,8 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialIcons } from "@expo/vector-icons";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width } = Dimensions.get("window");
 
@@ -19,6 +21,7 @@ const Height = () => {
   const navigation = useNavigation();
   const [selectedHeight, setSelectedHeight] = useState(160);
   const flatListRef = useRef(null);
+  const [userId, setUserId] = useState("");
 
   useEffect(() => {
     // Scroll to the initial height (160 cm) when the component mounts
@@ -31,26 +34,52 @@ const Height = () => {
       }
     }, 100);
   }, []);
+  useEffect(() => {
+    const getUserId = async () => {
+      try {
+        const storedUserId = await AsyncStorage.getItem("userId");
+        if (storedUserId) {
+          console.log("userId", storedUserId);
+          setUserId(storedUserId);
+        } else {
+          console.error("No userId found in storage");
+        }
+      } catch (e) {
+        console.error("Failed to fetch the userId from storage", e);
+      }
+    };
 
-  const handleContinue = () => {
-    Alert.alert("Selected Height", `You selected: ${selectedHeight} cm`);
-    navigation.navigate("Weight"); // Replace "NextScreen" with the actual name of the next screen
+    getUserId();
+  }, []);
+
+  const handleContinue = async () => {
+    try {
+      const response = await axios.patch(
+        `http://localhost:3001/api/v1/users/${userId}/health`,
+        {
+          height: selectedHeight,
+        }
+      );
+      Alert.alert("Selected Height", `You selected: ${selectedHeight}`);
+      navigation.navigate("Weight");
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", `Failed to update blood type: ${error.message}`);
+    }
   };
 
-  const renderHeightItem = ({ item }) => {
-    return (
-      <View style={styles.heightItem}>
-        <Text
-          style={[
-            styles.heightText,
-            item === selectedHeight && styles.selectedHeightText,
-          ]}
-        >
-          {item}
-        </Text>
-      </View>
-    );
-  };
+  const renderHeightItem = ({ item }) => (
+    <View style={styles.heightItem}>
+      <Text
+        style={[
+          styles.heightText,
+          item === selectedHeight && styles.selectedHeightText,
+        ]}
+      >
+        {item}
+      </Text>
+    </View>
+  );
 
   const getItemLayout = (data, index) => ({
     length: width / 5,
@@ -145,7 +174,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     position: "absolute",
-    top: -310,
+    top: -214,
     right: 15,
     fontSize: 18,
     color: "#254336",
@@ -157,7 +186,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: -100,
     marginBottom: 40,
-    marginTop: -180,
   },
   selectedHeightContainer: {
     alignItems: "center",
@@ -171,7 +199,10 @@ const styles = StyleSheet.create({
     fontSize: 90,
     fontWeight: "bold",
     color: "#254336",
-    marginBottom: 60,
+    marginBottom: 40,
+    marginLeft: 50,
+    marginTop: 10,
+    top: -10,
   },
   heightContainer: {
     marginBottom: 20,
@@ -179,7 +210,7 @@ const styles = StyleSheet.create({
   heightList: {
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: (width - width / 5) / 2, // Center the items in the middle of the screen
+    paddingHorizontal: (width - width / 5) / 2,
   },
   heightItem: {
     width: width / 5,
@@ -193,22 +224,20 @@ const styles = StyleSheet.create({
   },
   selectedHeightText: {
     fontWeight: "600",
-    fontSize: 49,
-    color: "#254336",
+    fontSize: 42,
   },
   continueButton: {
-    marginTop: 20,
     backgroundColor: "#254336",
-    paddingVertical: 12,
-    paddingHorizontal: 10,
+    paddingVertical: 15,
     borderRadius: 25,
-    width: "70%",
     alignItems: "center",
-    alignSelf: "center",
+    marginTop: 30,
+    marginLeft: 60,
+    width: "70%",
   },
   continueButtonText: {
-    color: "white",
-    fontSize: 16,
+    color: "#fff",
+    fontSize: 20,
     fontWeight: "bold",
   },
 });

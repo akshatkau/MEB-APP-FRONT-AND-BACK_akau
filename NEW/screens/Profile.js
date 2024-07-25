@@ -11,7 +11,6 @@ import {
   SafeAreaView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import jwtDecode from "jwt-decode";
 import { useNavigation } from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -20,14 +19,14 @@ import axios from "axios";
 
 const Profile = () => {
   const navigation = useNavigation();
-  const [tokenValid, setTokenValid] = useState(true);
+
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [height, setHeight] = useState(167);
-  const [weight, setWeight] = useState(66);
+  const [name, setName] = useState("");
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
   const [phone, setPhone] = useState("");
-  const [age, setAge] = useState(34);
+  const [age, setAge] = useState("");
   const [bloodGroup, setBloodGroup] = useState(null);
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState([
@@ -45,59 +44,32 @@ const Profile = () => {
   const [isEditingProfilePic, setIsEditingProfilePic] = useState(false);
   const [userId, setUserId] = useState(null);
 
-  const checkTokenValidity = async () => {
-    try {
-      const token = await AsyncStorage.getItem("authToken");
-
-      if (!token) {
-        setTokenValid(false);
-        return;
+  useEffect(() => {
+    const getUserId = async () => {
+      try {
+        const storedUserId = await AsyncStorage.getItem("userId");
+        if (storedUserId) {
+          setUserId(storedUserId);
+        } else {
+          console.error("No userId found in storage");
+        }
+      } catch (e) {
+        console.error("Failed to fetch the userId from storage", e);
       }
+    };
 
-      const decodedToken = jwtDecode(token);
-      const currentTime = Date.now() / 1000; // Current time in seconds
+    getUserId();
+  }, []);
 
-      if (decodedToken.exp < currentTime) {
-        setTokenValid(false);
-        await AsyncStorage.removeItem("authToken");
-        navigation.navigate("Login");
-        return;
-      }
-
-      setTokenValid(true);
-    } catch (error) {
-      console.error("Error checking token validity:", error);
-      setTokenValid(false);
+  useEffect(() => {
+    if (userId) {
+      fetchUserData();
+      fetchUserProfile();
     }
-  };
+  }, [userId]);
 
-  const fetchUserId = async () => {
+  const fetchUserProfile = async () => {
     try {
-      await checkTokenValidity();
-      const token = await AsyncStorage.getItem("authToken");
-
-      if (!token || !tokenValid) {
-        throw new Error("No valid token found");
-      }
-
-      const response = await axios.get("http://localhost:3001/api/v1/auth/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setUserId(response.data.userId);
-      setUserName(response.data.username);
-    } catch (error) {
-      console.error("Error fetching user ID:", error);
-    }
-  };
-
-  const fetchUserData = async () => {
-    try {
-      await fetchUserId();
-      if (!userId) return;
-
       const token = await AsyncStorage.getItem("authToken");
       const response = await axios.get(
         `http://localhost:3001/api/v1/users/${userId}`,
@@ -110,19 +82,35 @@ const Profile = () => {
 
       const userProfileData = response.data;
       setUserEmail(userProfileData.email);
+      setUserName(userProfileData.username);
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+    }
+  };
+
+  const fetchUserData = async () => {
+    try {
+      const token = await AsyncStorage.getItem("authToken");
+      const response = await axios.get(
+        `http://localhost:3001/api/v1/users/${userId}/health`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const userProfileData = response.data;
+      setName(userProfileData.name);
       setHeight(userProfileData.height);
       setWeight(userProfileData.weight);
       setPhone(userProfileData.phone);
       setAge(userProfileData.age);
       setBloodGroup(userProfileData.bloodGroup);
     } catch (error) {
-      console.error("Error fetching user profile:", error);
+      console.error("Error fetching user health data:", error);
     }
   };
-
-  useEffect(() => {
-    fetchUserData();
-  }, []);
 
   const incrementValue = (value, setter) => setter(value + 1);
   const decrementValue = (value, setter) => setter(value > 0 ? value - 1 : 0);
@@ -139,6 +127,7 @@ const Profile = () => {
         updatedProfile: {
           username: userName,
           email: userEmail,
+          name: name,
           phone: phone,
           height: height,
           weight: weight,
@@ -157,7 +146,7 @@ const Profile = () => {
       const profileData = {
         username: userName,
         email: userEmail,
-        password: password,
+        name: name,
         height: height,
         weight: weight,
         phone: phone,
@@ -166,23 +155,22 @@ const Profile = () => {
       };
 
       const token = await AsyncStorage.getItem("authToken");
-      if (!token || !tokenValid) {
+      if (!token) {
         throw new Error("No valid token found");
       }
 
-      const response = await fetch(
-        `http://localhost:3001/api/v1/users/${userId}`,
+      const response = await axios.patch(
+        `http://localhost:3001/api/v1/users/${userId}/health`,
+        profileData,
         {
-          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(profileData),
         }
       );
 
-      if (!response.ok) {
+      if (!response.status === 200) {
         throw new Error("Failed to save profile data");
       }
 
@@ -234,7 +222,7 @@ const Profile = () => {
                   style={styles.editIcon}
                 />
               </TouchableOpacity>
-              <Text style={styles.profilePicText}>Hello, Jane{username}!</Text>
+              <Text style={styles.profilePicText}>Hello, {name}!</Text>
 
               <Text style={styles.label}>Email:</Text>
               <TextInput
@@ -243,6 +231,13 @@ const Profile = () => {
                 onChangeText={setUserEmail}
                 keyboardType="email-address"
                 placeholder="Enter your email"
+              />
+              <Text style={styles.label}>Name:</Text>
+              <TextInput
+                style={styles.input}
+                value={name}
+                onChangeText={setName}
+                placeholder="Enter your Name"
               />
 
               <Text style={styles.label}>Username:</Text>
@@ -262,9 +257,9 @@ const Profile = () => {
                   keyboardType="numeric"
                   placeholder="Enter your phone number"
                 />
-                <TouchableOpacity style={styles.sendOtpButton}>
+                {/*<TouchableOpacity style={styles.sendOtpButton}>
                   <Text style={styles.sendOtpText}>Send OTP</Text>
-                </TouchableOpacity>
+                </TouchableOpacity>*/}
               </View>
 
               <Text style={styles.label}>Height (cm):</Text>
@@ -332,19 +327,20 @@ const Profile = () => {
                   <Text style={styles.incrementButtonText}>+</Text>
                 </TouchableOpacity>
               </View>
-              <View style={styles.bloodGroup}>
-                <Text style={styles.label}>Blood Group:</Text>
-                <DropDownPicker
-                  open={open}
-                  value={bloodGroup}
-                  items={items}
-                  setOpen={setOpen}
-                  setValue={setBloodGroup}
-                  setItems={setItems}
-                  style={pickerSelectStyles.dropdown}
-                  containerStyle={styles.dropDownContainer}
-                />
-              </View>
+
+              <Text style={styles.label}>Blood Group:</Text>
+              <DropDownPicker
+                open={open}
+                value={bloodGroup}
+                items={items}
+                setOpen={setOpen}
+                setValue={setBloodGroup}
+                setItems={setItems}
+                placeholder="Select your blood group"
+                containerStyle={styles.dropdownContainer}
+                style={styles.dropdown}
+                dropDownStyle={styles.dropdownList}
+              />
 
               <TouchableOpacity
                 style={styles.submitButton}
@@ -360,166 +356,150 @@ const Profile = () => {
   );
 };
 
-const pickerSelectStyles = StyleSheet.create({
-  dropdown: {
-    borderColor: "#254336",
-  },
-});
-
 const styles = StyleSheet.create({
   background: {
     flex: 1,
+    width: "100%",
+    height: "100%",
   },
   overlay: {
-    flex: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(255, 255, 255, 0.8)", // You can adjust the opacity as needed
   },
   container: {
     flex: 1,
-    paddingTop: 50,
-    paddingHorizontal: 20,
-    alignItems: "center",
+    marginHorizontal: 10,
+    marginBottom: 20,
   },
   topRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
-    marginBottom: 20,
+    marginBottom: 10,
+  },
+  titleText: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#254336",
+    flex: 1,
+    textAlign: "center",
+  },
+  logoContainer: {
+    marginRight: 10,
   },
   logo: {
     width: 50,
     height: 50,
-    resizeMode: "contain",
-  },
-  logoContainer: {
-    resizeMode: "contain",
-  },
-  titleText: {
-    color: "#254336",
-    fontSize: 25,
-    fontWeight: "bold",
-    textAlign: "center",
-    flex: 1,
   },
   scrollContainer: {
     flexGrow: 1,
-    alignItems: "center",
+    justifyContent: "flex-start",
     paddingBottom: 20,
   },
   contentContainer: {
-    width: "100%",
-    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    borderRadius: 20,
+    padding: 20,
+    marginHorizontal: 10,
+    marginTop: 10,
   },
   profilePic: {
-    width: 110,
-    height: 110,
-    borderRadius: 40,
-    marginBottom: 15,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 20,
+    marginRight: 50,
+    marginLeft: 110,
   },
   editIcon: {
     position: "absolute",
-    bottom: 0,
-    right: 0,
-    backgroundColor: "#fff",
-    borderRadius: 15,
-    padding: 5,
+    bottom: 10,
+    right: 105,
   },
   profilePicText: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "bold",
     marginBottom: 20,
+    textAlign: "center",
+    color: "#254336",
   },
   label: {
-    fontSize: 19,
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
     color: "#254336",
-    marginBottom: 3,
-    textAlign: "left",
-    width: "90%",
-    fontWeight: "500",
-    marginTop: 3,
   },
   input: {
-    height: 40,
-    borderColor: "#254336",
-    borderWidth: 1.5,
-    borderRadius: 15,
-    paddingHorizontal: 10,
-    marginVertical: 5,
-    width: "90%",
-    fontSize: 17,
-    color: "#254336",
-    marginBottom: 30,
+    borderWidth: 1,
+    borderColor: "#8BBE78",
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 15,
   },
   phoneContainer: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    width: "90%",
   },
   sendOtpButton: {
-    backgroundColor: "#254336",
-    borderRadius: 15,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
+    backgroundColor: "#8BBE78",
+    borderRadius: 10,
+    padding: 10,
     marginLeft: 10,
-    marginBottom: 25,
   },
   sendOtpText: {
-    color: "white",
-    fontSize: 16,
+    color: "#fff",
+    fontWeight: "bold",
   },
   incrementContainer: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginVertical: 5,
-    width: "90%", // Adjusted width to 90% for consistent spacing
+    marginBottom: 15,
   },
   incrementButton: {
-    backgroundColor: "#254336",
-    borderRadius: 15,
-    padding: 5, // Adjusted padding to 5
-    width: 30, // Adjusted width to 30 for smaller buttons
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: "#8BBE78",
+    padding: 10,
+    borderRadius: 10,
   },
   incrementButtonLeft: {
-    marginRight: 5, // Added margin for left button
+    marginRight: 10,
   },
   incrementButtonRight: {
-    marginLeft: 5, // Added margin for right button
+    marginLeft: 10,
   },
   incrementButtonText: {
-    color: "white",
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 20,
   },
   incrementInput: {
-    height: 40,
-    borderColor: "#254336",
-    borderWidth: 1.5,
-    borderRadius: 15,
-    paddingHorizontal: 10,
-    fontSize: 16,
-    color: "#254336",
+    borderWidth: 1,
+    borderColor: "#8BBE78",
+    borderRadius: 10,
+    padding: 10,
+    flex: 1,
     textAlign: "center",
-    width: "40%", // Adjusted width to 40% for input field
-    marginBottom: 5,
+  },
+  dropdownContainer: {
+    marginBottom: 15,
+  },
+  dropdown: {
+    borderWidth: 1,
+    borderColor: "#8BBE78",
+    borderRadius: 10,
+  },
+  dropdownList: {
+    borderColor: "#8BBE78",
   },
   submitButton: {
-    backgroundColor: "#254336",
-    borderRadius: 15,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    marginTop: 20,
+    backgroundColor: "#8BBE78",
+    borderRadius: 10,
+    padding: 15,
+    alignItems: "center",
+    marginTop: 10,
   },
   submitButtonText: {
-    color: "white",
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 18,
-  },
-  bloodGroup: {
-    marginBottom: 18,
-    width: "90%", // Added width to bloodGroup container
   },
 });
 

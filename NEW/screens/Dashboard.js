@@ -14,32 +14,60 @@ import { MaterialIcons } from "@expo/vector-icons";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import jwtDecode from "jwt-decode";
+import { FontAwesome6 } from "@expo/vector-icons";
 
 const Dashboard = () => {
   const navigation = useNavigation();
   const [userDetails, setUserDetails] = useState({ username: "" });
   const [userName, setUserName] = useState("");
   const [age, setAge] = useState("");
+  const [blood, setBlood] = useState("");
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
+  const [userId, setUserId] = useState("");
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    const getUserId = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3001/api/v1/auth/me",
-          {}
-        );
-
-        console.log(response.data);
-        // Update states with the response data
-        setUserDetails(response.data);
-        setUserName(response.data.username);
-      } catch (error) {
-        //console.error("Error fetching user data:", error);
+        const storedUserId = await AsyncStorage.getItem("userId");
+        if (storedUserId) {
+          console.log("userId", storedUserId);
+          setUserId(storedUserId);
+        } else {
+          console.error("No userId found in storage");
+        }
+      } catch (e) {
+        console.error("Failed to fetch the userId from storage", e);
       }
     };
 
-    fetchUserData();
+    getUserId();
   }, []);
+
+  useEffect(() => {
+    if (userId) {
+      const fetchUserData = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:3001/api/v1/users/${userId}/health`
+          );
+
+          console.log(response.data);
+          // Update states with the response data
+          setUserDetails(response.data);
+          setUserName(response.data.name);
+          setAge(response.data.age);
+          setBlood(response.data.bloodGroup);
+          setHeight(response.data.height);
+          setWeight(response.data.weight);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      };
+
+      fetchUserData();
+    }
+  }, [userId]);
 
   return (
     <ImageBackground
@@ -56,13 +84,16 @@ const Dashboard = () => {
               />
             </TouchableOpacity>
             <Text style={styles.titleText}>Dashboard</Text>
+
             <View style={styles.iconContainer}>
-              <Ionicons
-                name="notifications-sharp"
-                size={24}
-                color="black"
-                style={styles.notificationIcon}
-              />
+              <TouchableOpacity onPress={() => navigation.navigate("")}>
+                <Ionicons
+                  name="notifications-sharp"
+                  size={24}
+                  color="black"
+                  style={styles.notificationIcon}
+                />
+              </TouchableOpacity>
               <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
                 <MaterialIcons
                   name="settings"
@@ -102,13 +133,25 @@ const Dashboard = () => {
                 source={require("../assets/edit.jpg")}
                 style={styles.editImage}
               />
-              <Text style={styles.userName}>{userDetails.username}</Text>
+              <Text style={styles.userName}>{userName}</Text>
               {/* Display fetched username */}
-              <Text style={styles.userAge}>Age: 34 years old</Text>
+              <Text style={styles.userAge}>
+                <Text style={styles.label}>Age: </Text>
+                <Text style={styles.bold}>{age}</Text> years old
+              </Text>
               <View style={styles.userInfoRow}>
-                <Text style={styles.userInfo}>Blood: B-</Text>
-                <Text style={styles.userInfo}>Height: 167 cm</Text>
-                <Text style={styles.userInfo}>Weight: 66 kg</Text>
+                <Text style={styles.userInfo}>
+                  <Text style={styles.label}>Blood: </Text>
+                  <Text style={styles.bold}>{blood} </Text>
+                </Text>
+                <Text style={styles.userInfo}>
+                  <Text style={styles.label}>Height: </Text>
+                  <Text style={styles.bold}>{height}</Text> cm
+                </Text>
+                <Text style={styles.userInfo}>
+                  <Text style={styles.label}> Weight: </Text>
+                  <Text style={styles.bold}>{weight}</Text> kg
+                </Text>
               </View>
             </View>
 
@@ -118,20 +161,23 @@ const Dashboard = () => {
               style={styles.graphImage}
             />
 
-            {/* Parameters Row */}
+            {/* Updated Parameters Row with Icons */}
             <View style={styles.parametersRow}>
-              <Image
-                source={require("../assets/steps.jpg")}
-                style={styles.parameterImage}
-              />
-              <Image
-                source={require("../assets/calories.jpg")}
-                style={styles.parameterImage}
-              />
-              <Image
-                source={require("../assets/water.jpg")}
-                style={styles.parameterImage}
-              />
+              <View style={styles.parameterBox}>
+                <Ionicons name="footsteps" size={24} color="#254336" />
+                <Text style={styles.parameterValue}>500/3000</Text>
+                <Text style={styles.parameterDescription}>steps taken</Text>
+              </View>
+              <View style={styles.parameterBox}>
+                <FontAwesome6 name="fire" size={24} color="#254336" />
+                <Text style={styles.parameterValue}>408 kcal</Text>
+                <Text style={styles.parameterDescription}>burned</Text>
+              </View>
+              <View style={styles.parameterBox}>
+                <Ionicons name="water-sharp" size={24} color="#254336" />
+                <Text style={styles.parameterValue}>1.5 litres</Text>
+                <Text style={styles.parameterDescription}>water taken</Text>
+              </View>
             </View>
 
             {/* Bottom Row */}
@@ -148,14 +194,6 @@ const Dashboard = () => {
           </ScrollView>
         </View>
       </View>
-
-      {/* Update Data Button - Positioned at the bottom */}
-      <TouchableOpacity
-        style={styles.updateButtonBottom}
-        onPress={() => navigation.navigate("Profile")}
-      >
-        <Text style={styles.buttonText}>Update Data</Text>
-      </TouchableOpacity>
     </ImageBackground>
   );
 };
@@ -184,7 +222,8 @@ const styles = StyleSheet.create({
     width: 55,
     height: 55,
     resizeMode: "contain",
-    marginRight: 50, // Adjust spacing between logo and text
+    marginRight: 30,
+    marginLeft: 60, // Adjust spacing between logo and text
   },
   titleText: {
     color: "#254336",
@@ -217,7 +256,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   greenBox: {
-    backgroundColor: "#D7DFD5", // Green box color
+    backgroundColor: "rgba(215, 223, 213,0.5)", // Green box color
     paddingHorizontal: 20,
     paddingVertical: 15,
     borderRadius: 10,
@@ -230,7 +269,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   userDetailsBox: {
-    backgroundColor: "#D7DFD5",
+    backgroundColor: "rgba(215, 223, 213,0.5)",
     padding: 20,
     borderRadius: 10,
     marginBottom: 20,
@@ -244,15 +283,19 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   userName: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
+    color: "#254336",
     textAlign: "center",
-    marginTop: 10,
   },
   userAge: {
-    fontSize: 16,
+    fontSize: 18,
+    color: "#254336",
     textAlign: "center",
     marginTop: 5,
+  },
+  userAgeBold: {
+    fontWeight: "400",
   },
   userInfoRow: {
     flexDirection: "row",
@@ -260,8 +303,15 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   userInfo: {
-    fontSize: 14,
-    textAlign: "center",
+    fontSize: 18,
+    color: "#254336",
+  },
+  label: {
+    color: "#555", // Change this color as needed
+  },
+  bold: {
+    fontWeight: "bold",
+    color: "#254336", // You can change this color if needed
   },
   graphImage: {
     width: "100%",
@@ -271,38 +321,56 @@ const styles = StyleSheet.create({
   },
   parametersRow: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 20,
+    justifyContent: "space-between",
+    width: "100%",
+    marginBottom: 20,
   },
-  parameterImage: {
-    width: 120,
-    height: 100,
-    resizeMode: "contain",
+  parameterBox: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(215, 223, 213,0.5)",
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 20,
+    marginHorizontal: 5,
+  },
+  parameterValue: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  parameterDescription: {
+    fontSize: 14,
+    color: "#666",
   },
   bottomRow: {
     flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 20,
+    justifyContent: "space-between",
+    marginTop: 1,
+    marginBottom: 20,
   },
   remindersImage: {
-    width: 120,
+    width: 140,
     height: 100,
     resizeMode: "contain",
   },
   reportsImage: {
-    width: 120,
+    width: 140,
     height: 100,
     resizeMode: "contain",
   },
   updateButtonBottom: {
+    alignSelf: "center",
     position: "absolute",
     bottom: 30,
-    left: 20,
-    right: 20,
     paddingVertical: 10,
-    backgroundColor: "#254336", // Blue color for update button
+    paddingHorizontal: 20,
+    backgroundColor: "#254336",
     borderRadius: 30,
-    alignItems: "center",
+  },
+  scrollContainer: {
+    paddingBottom: 100,
   },
 });
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,18 +10,50 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialIcons } from "@expo/vector-icons";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const BloodType = () => {
   const navigation = useNavigation();
   const [selectedBloodType, setSelectedBloodType] = useState("A");
   const [selectedRhFactor, setSelectedRhFactor] = useState("+");
+  const [userId, setUserId] = useState("");
 
-  const handleContinue = () => {
-    Alert.alert(
-      "Selected Blood Type",
-      `You selected: ${selectedBloodType}${selectedRhFactor}`
-    );
-    navigation.navigate("SleepLevel");
+  useEffect(() => {
+    const getUserId = async () => {
+      try {
+        const storedUserId = await AsyncStorage.getItem("userId");
+        if (storedUserId) {
+          console.log("userId", storedUserId);
+          setUserId(storedUserId);
+        } else {
+          console.error("No userId found in storage");
+        }
+      } catch (e) {
+        console.error("Failed to fetch the userId from storage", e);
+      }
+    };
+
+    getUserId();
+  }, []);
+
+  const handleContinue = async () => {
+    try {
+      const response = await axios.patch(
+        `http://localhost:3001/api/v1/users/${userId}/health`,
+        {
+          bloodGroup: `${selectedBloodType}${selectedRhFactor}`,
+        }
+      );
+      Alert.alert(
+        "Selected Blood Type",
+        `You selected: ${selectedBloodType}${selectedRhFactor}`
+      );
+      navigation.navigate("SleepLevel");
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", `Failed to update blood type: ${error.message}`);
+    }
   };
 
   return (
@@ -124,7 +156,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     position: "absolute",
-    top: -190,
+    top: -167,
     right: 15,
     fontSize: 18,
     color: "#254336",
@@ -159,7 +191,7 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   selectedBloodTypeDisplay: {
-    fontSize: 170,
+    fontSize: 150,
     fontWeight: "bold",
     color: "#254336",
     textAlign: "center",
